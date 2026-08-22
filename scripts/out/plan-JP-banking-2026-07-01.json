@@ -1,0 +1,395 @@
+{
+  "id": "plan-JP-banking-2026-07-01",
+  "objective": "multi-currency wallet launch",
+  "market": "JP",
+  "vertical": "banking",
+  "total_budget": 200000.0,
+  "segments": [
+    {
+      "segment": {
+        "id": "jp-bank-seg-fx",
+        "name": "JP multi-currency travellers (FICTIONAL)",
+        "market": "JP",
+        "vertical": "banking",
+        "size": 510000,
+        "reachable_size": 360000,
+        "propensity": 0.31,
+        "expected_value": 210.0,
+        "consent_rate": 0.79,
+        "tags": [
+          "fx",
+          "travel"
+        ],
+        "citations": [
+          {
+            "source_id": "jp-bank-seg-fx",
+            "source_type": "audience_data",
+            "title": "JP multi-currency travellers",
+            "url": "https://example.test/audience/jp-bank-seg-fx",
+            "page": 1,
+            "published_date": null,
+            "snippet": "JP multi-currency travellers (FICTIONAL synthetic audience-data row).",
+            "score": 0.9
+          }
+        ],
+        "consented_reachable": 284400
+      },
+      "score": 0.2449,
+      "rank": 1,
+      "rationale": "propensity 0.31, value 210, consent 0.79, consented-reachable 284400 -> score 0.24",
+      "citations": [
+        {
+          "source_id": "jp-bank-seg-fx",
+          "source_type": "audience_data",
+          "title": "JP multi-currency travellers",
+          "url": "https://example.test/audience/jp-bank-seg-fx",
+          "page": 1,
+          "published_date": null,
+          "snippet": "JP multi-currency travellers (FICTIONAL synthetic audience-data row).",
+          "score": 0.9
+        }
+      ]
+    },
+    {
+      "segment": {
+        "id": "jp-bank-seg-salary",
+        "name": "JP salaried direct-deposit (FICTIONAL)",
+        "market": "JP",
+        "vertical": "banking",
+        "size": 880000,
+        "reachable_size": 600000,
+        "propensity": 0.22,
+        "expected_value": 130.0,
+        "consent_rate": 0.68,
+        "tags": [
+          "salary",
+          "primary-account"
+        ],
+        "citations": [
+          {
+            "source_id": "jp-bank-seg-salary",
+            "source_type": "audience_data",
+            "title": "JP salaried direct-deposit",
+            "url": "https://example.test/audience/jp-bank-seg-salary",
+            "page": 1,
+            "published_date": null,
+            "snippet": "JP salaried direct-deposit (FICTIONAL synthetic audience-data row).",
+            "score": 0.9
+          }
+        ],
+        "consented_reachable": 408000
+      },
+      "score": 0.1177,
+      "rank": 2,
+      "rationale": "propensity 0.22, value 130, consent 0.68, consented-reachable 408000 -> score 0.12",
+      "citations": [
+        {
+          "source_id": "jp-bank-seg-salary",
+          "source_type": "audience_data",
+          "title": "JP salaried direct-deposit",
+          "url": "https://example.test/audience/jp-bank-seg-salary",
+          "page": 1,
+          "published_date": null,
+          "snippet": "JP salaried direct-deposit (FICTIONAL synthetic audience-data row).",
+          "score": 0.9
+        }
+      ]
+    }
+  ],
+  "channel_mix": {
+    "market": "JP",
+    "vertical": "banking",
+    "total_budget": 200000.0,
+    "lines": [
+      {
+        "channel": "email",
+        "amount": 25902.98,
+        "share": 0.1295,
+        "expected_impressions": 21585817,
+        "expected_reach": 200000,
+        "expected_conversions": 51805.96,
+        "expected_cost_per_conversion": 0.5,
+        "citations": [
+          {
+            "source_id": "jp-banking-email-bm",
+            "source_type": "benchmark",
+            "title": "email benchmark JP/banking",
+            "url": "https://example.test/benchmark/jp-banking-email-bm",
+            "page": 1,
+            "published_date": null,
+            "snippet": "email benchmark JP/banking (FICTIONAL synthetic channel benchmark).",
+            "score": 0.9
+          }
+        ]
+      },
+      {
+        "channel": "search",
+        "amount": 18349.79,
+        "share": 0.0917,
+        "expected_impressions": 2038866,
+        "expected_reach": 120000,
+        "expected_conversions": 5504.94,
+        "expected_cost_per_conversion": 3.33,
+        "citations": [
+          {
+            "source_id": "jp-banking-search-bm",
+            "source_type": "benchmark",
+            "title": "search benchmark JP/banking",
+            "url": "https://example.test/benchmark/jp-banking-search-bm",
+            "page": 1,
+            "published_date": null,
+            "snippet": "search benchmark JP/banking (FICTIONAL synthetic channel benchmark).",
+            "score": 0.9
+          }
+        ]
+      },
+      {
+        "channel": "partner",
+        "amount": 16332.34,
+        "share": 0.0817,
+        "expected_impressions": 2177645,
+        "expected_reach": 90000,
+        "expected_conversions": 1742.12,
+        "expected_cost_per_conversion": 9.37,
+        "citations": [
+          {
+            "source_id": "jp-banking-partner-bm",
+            "source_type": "benchmark",
+            "title": "partner benchmark JP/banking",
+            "url": "https://example.test/benchmark/jp-banking-partner-bm",
+            "page": 1,
+            "published_date": null,
+            "snippet": "partner benchmark JP/banking (FICTIONAL synthetic channel benchmark).",
+            "score": 0.9
+          }
+        ]
+      },
+      {
+        "channel": "social",
+        "amount": 57565.96,
+        "share": 0.2878,
+        "expected_impressions": 9594327,
+        "expected_reach": 400000,
+        "expected_conversions": 2302.64,
+        "expected_cost_per_conversion": 25.0,
+        "citations": [
+          {
+            "source_id": "jp-banking-social-bm",
+            "source_type": "benchmark",
+            "title": "social benchmark JP/banking",
+            "url": "https://example.test/benchmark/jp-banking-social-bm",
+            "page": 1,
+            "published_date": null,
+            "snippet": "social benchmark JP/banking (FICTIONAL synthetic channel benchmark).",
+            "score": 0.9
+          }
+        ]
+      },
+      {
+        "channel": "display",
+        "amount": 81848.93,
+        "share": 0.4092,
+        "expected_impressions": 23385409,
+        "expected_reach": 600000,
+        "expected_conversions": 748.33,
+        "expected_cost_per_conversion": 109.38,
+        "citations": [
+          {
+            "source_id": "jp-banking-display-bm",
+            "source_type": "benchmark",
+            "title": "display benchmark JP/banking",
+            "url": "https://example.test/benchmark/jp-banking-display-bm",
+            "page": 1,
+            "published_date": null,
+            "snippet": "display benchmark JP/banking (FICTIONAL synthetic channel benchmark).",
+            "score": 0.9
+          }
+        ]
+      }
+    ],
+    "allocated": 200000.0,
+    "expected_conversions": 62103.99,
+    "expected_reach": 1410000,
+    "blended_cost_per_conversion": 3.22,
+    "requires_human_review": true
+  },
+  "reach_frequency": {
+    "market": "JP",
+    "vertical": "banking",
+    "impressions": 58782064,
+    "unique_reach": 672442,
+    "addressable": 692400,
+    "average_frequency": 87.42,
+    "effective_reach": 470709,
+    "effective_frequency": 3,
+    "rationale": "58782064 impression(s) across 5 channel(s); 672442 unique people reached of 692400 addressable (97.1%); avg frequency 87.42; 470709 at 3+ effective frequency.",
+    "citations": [
+      {
+        "source_id": "jp-banking-email-bm",
+        "source_type": "benchmark",
+        "title": "email benchmark JP/banking",
+        "url": "https://example.test/benchmark/jp-banking-email-bm",
+        "page": 1,
+        "published_date": null,
+        "snippet": "email benchmark JP/banking (FICTIONAL synthetic channel benchmark).",
+        "score": 0.9
+      },
+      {
+        "source_id": "jp-banking-search-bm",
+        "source_type": "benchmark",
+        "title": "search benchmark JP/banking",
+        "url": "https://example.test/benchmark/jp-banking-search-bm",
+        "page": 1,
+        "published_date": null,
+        "snippet": "search benchmark JP/banking (FICTIONAL synthetic channel benchmark).",
+        "score": 0.9
+      },
+      {
+        "source_id": "jp-banking-partner-bm",
+        "source_type": "benchmark",
+        "title": "partner benchmark JP/banking",
+        "url": "https://example.test/benchmark/jp-banking-partner-bm",
+        "page": 1,
+        "published_date": null,
+        "snippet": "partner benchmark JP/banking (FICTIONAL synthetic channel benchmark).",
+        "score": 0.9
+      },
+      {
+        "source_id": "jp-banking-social-bm",
+        "source_type": "benchmark",
+        "title": "social benchmark JP/banking",
+        "url": "https://example.test/benchmark/jp-banking-social-bm",
+        "page": 1,
+        "published_date": null,
+        "snippet": "social benchmark JP/banking (FICTIONAL synthetic channel benchmark).",
+        "score": 0.9
+      },
+      {
+        "source_id": "jp-banking-display-bm",
+        "source_type": "benchmark",
+        "title": "display benchmark JP/banking",
+        "url": "https://example.test/benchmark/jp-banking-display-bm",
+        "page": 1,
+        "published_date": null,
+        "snippet": "display benchmark JP/banking (FICTIONAL synthetic channel benchmark).",
+        "score": 0.9
+      }
+    ],
+    "reach_pct": 0.9712
+  },
+  "flight_schedule": {
+    "market": "JP",
+    "vertical": "banking",
+    "start_date": "2026-07-01",
+    "end_date": "2026-07-28",
+    "strategy": "front_loaded",
+    "total_budget": 200000.0,
+    "legs": [
+      {
+        "index": 0,
+        "start_date": "2026-07-01",
+        "end_date": "2026-07-07",
+        "weight": 0.375,
+        "amount": 75000.0
+      },
+      {
+        "index": 1,
+        "start_date": "2026-07-08",
+        "end_date": "2026-07-14",
+        "weight": 0.2917,
+        "amount": 58333.33
+      },
+      {
+        "index": 2,
+        "start_date": "2026-07-15",
+        "end_date": "2026-07-21",
+        "weight": 0.2083,
+        "amount": 41666.67
+      },
+      {
+        "index": 3,
+        "start_date": "2026-07-22",
+        "end_date": "2026-07-28",
+        "weight": 0.125,
+        "amount": 25000.0
+      }
+    ],
+    "paced_total": 200000.0
+  },
+  "creative_brief": "Lead with the offer's single clearest benefit for the selected high-propensity segments, kept consistent across channels and localised per market. Sequence messaging to the paced flight; every claim must be substantiated. This brief is grounded in the deterministic plan and requires human review before any spend.",
+  "summary": "The plan targets the highest-scoring consented segments, allocates the budget across channels by deterministic cost-per-conversion, and paces spend across the flight. All figures are deterministic; the allocation requires human sign-off before any budget is committed.",
+  "citations": [
+    {
+      "source_id": "jp-bank-seg-fx",
+      "source_type": "audience_data",
+      "title": "JP multi-currency travellers",
+      "url": "https://example.test/audience/jp-bank-seg-fx",
+      "page": 1,
+      "published_date": null,
+      "snippet": "JP multi-currency travellers (FICTIONAL synthetic audience-data row).",
+      "score": 0.9
+    },
+    {
+      "source_id": "jp-bank-seg-salary",
+      "source_type": "audience_data",
+      "title": "JP salaried direct-deposit",
+      "url": "https://example.test/audience/jp-bank-seg-salary",
+      "page": 1,
+      "published_date": null,
+      "snippet": "JP salaried direct-deposit (FICTIONAL synthetic audience-data row).",
+      "score": 0.9
+    },
+    {
+      "source_id": "jp-banking-email-bm",
+      "source_type": "benchmark",
+      "title": "email benchmark JP/banking",
+      "url": "https://example.test/benchmark/jp-banking-email-bm",
+      "page": 1,
+      "published_date": null,
+      "snippet": "email benchmark JP/banking (FICTIONAL synthetic channel benchmark).",
+      "score": 0.9
+    },
+    {
+      "source_id": "jp-banking-search-bm",
+      "source_type": "benchmark",
+      "title": "search benchmark JP/banking",
+      "url": "https://example.test/benchmark/jp-banking-search-bm",
+      "page": 1,
+      "published_date": null,
+      "snippet": "search benchmark JP/banking (FICTIONAL synthetic channel benchmark).",
+      "score": 0.9
+    },
+    {
+      "source_id": "jp-banking-partner-bm",
+      "source_type": "benchmark",
+      "title": "partner benchmark JP/banking",
+      "url": "https://example.test/benchmark/jp-banking-partner-bm",
+      "page": 1,
+      "published_date": null,
+      "snippet": "partner benchmark JP/banking (FICTIONAL synthetic channel benchmark).",
+      "score": 0.9
+    },
+    {
+      "source_id": "jp-banking-social-bm",
+      "source_type": "benchmark",
+      "title": "social benchmark JP/banking",
+      "url": "https://example.test/benchmark/jp-banking-social-bm",
+      "page": 1,
+      "published_date": null,
+      "snippet": "social benchmark JP/banking (FICTIONAL synthetic channel benchmark).",
+      "score": 0.9
+    },
+    {
+      "source_id": "jp-banking-display-bm",
+      "source_type": "benchmark",
+      "title": "display benchmark JP/banking",
+      "url": "https://example.test/benchmark/jp-banking-display-bm",
+      "page": 1,
+      "published_date": null,
+      "snippet": "display benchmark JP/banking (FICTIONAL synthetic channel benchmark).",
+      "score": 0.9
+    }
+  ],
+  "requires_human_review": true,
+  "generated_at": "2026-06-24T11:24:27.231111+00:00"
+}

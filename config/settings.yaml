@@ -1,0 +1,147 @@
+# Campaign Planning and Budget Allocation (D2) — runtime configuration.
+#
+# Switch the entire managed stack to on-prem by setting MKT_CAMPAIGN_PROFILE=onprem
+# (or profile: onprem below). Nothing in src/campaign_planner/domain changes.
+# MKT_CAMPAIGN_PROFILE=local runs the whole pipeline offline (deterministic audience-data
+# store + deterministic LLM), with NO Google Cloud SDK required; production deploys set
+# MKT_CAMPAIGN_PROFILE=gcp explicitly.
+#
+# There is NO default profile. Leaving both the variable and `profile:` below unset means
+# nobody chose, which is not the same as choosing `local`: the SDK-free adapters still bind
+# (nothing else is installed) but every relaxation is refused, and the seeded no-auth dev
+# personas are NOT served. Name the profile deliberately for a dev or demo run.
+#
+# D2 is generic and APAC: the active vertical (banking | online_retail) and market
+# (JP | AU | SG) are settings, and each market's residency region / locales come from the
+# per-market profiles below (config + seed), never a hard-coded branch.
+
+project_id: ${GOOGLE_CLOUD_PROJECT:-your-gcp-project}
+region: asia-southeast1                  # default residency region; per-market overrides apply
+profile: ""                              # no default; MKT_CAMPAIGN_PROFILE wins. gcp | local | platform | onprem
+vertical: ${MKT_VERTICAL:-banking}       # banking | online_retail
+market: ${MKT_MARKET:-SG}                # JP | AU | SG
+
+models:
+  reasoning: gemini-3.5-flash            # GA — creative brief / plan summary drafting
+  triage: gemini-3.1-flash-lite          # GA — routing / triage / guardrail pre-checks
+  hard_reasoning: gemini-3.1-pro         # Preview — OFF unless use_hard_reasoning=true
+  use_hard_reasoning: false
+
+bigquery:
+  dataset: mkt_campaign_audience         # audience-data warehouse dataset
+  segments_table: audience_segments      # candidate audience segments
+  benchmarks_table: channel_benchmarks   # per-channel cost / performance benchmarks
+  location: asia-southeast1
+
+model_armor:
+  template_id: mkt-campaign-guardrail
+  host: modelarmor.asia-southeast1.rep.googleapis.com
+
+logging:
+  log_name: campaign-planner-audit
+  bucket: campaign-planner-worm
+  retention_days: 2557                   # ~7 years; bucket is locked (irreversible) in prod
+
+agent_engine:
+  resource_name: ${MKT_AGENT_ENGINE:-}
+  display_name: campaign-planner
+
+# Local profile stores (SDK-free). Empty paths default under ~/.campaign_planner/;
+# tests use ":memory:" for ephemeral, deterministic SQLite. No Google Cloud here.
+local:
+  audit_path: ${MKT_LOCAL_AUDIT:-}       # append-only local audit (WORM stand-in)
+  seed_path: ${MKT_LOCAL_SEED:-}         # audience-data seed JSON ("" => bundled fictional seed)
+
+# Adopter-owned decision policy. These are reference defaults, not regulatory advice.
+policy:
+  audience_propensity_weight: 1.0
+  audience_value_weight: 0.5
+  audience_min_consent: 0.0
+  audience_min_reachable: 1
+  allocation_saturation_frequency: 3.0
+  allocation_epsilon: 0.01
+  reach_effective_factor: 0.7
+  pacing_ramp_low: 0.5
+  pacing_ramp_high: 1.5
+
+# Per-market residency regions and locales (config + seed, NEVER hard-coded in a branch).
+# JP -> Tokyo, AU -> Sydney, SG -> Singapore; the region is selectable at deploy and
+# validated by config.market_profile().
+markets:
+  JP:
+    region: asia-northeast1
+    locales: [ja, en]
+    currency: JPY
+  AU:
+    region: australia-southeast1
+    locales: [en]
+    currency: AUD
+  SG:
+    region: asia-southeast1
+    locales: [en]
+    currency: SGD
+
+# ----------------------------------------------------------------------------- #
+# Port -> adapter bindings. The container picks the entry for the active profile,
+# falling back to the 'gcp' entry. These dotted paths are the build contract:
+# each adapter class takes a single Settings argument.
+# ----------------------------------------------------------------------------- #
+adapters:
+  # End-user identity (authentication). local = seeded dev personas, NO IdP/AD/LDAP, so
+  # demos and tests run offline; gcp/platform = verify the IAP-injected signed assertion
+  # (auth configured ON the GCP service); onprem = client IdP placeholder. The resolved
+  # Principal supplies the audit actor, replacing any client-asserted actor.
+  identity:
+    gcp: campaign_planner.adapters.gcp.iap_identity:IapIdentityAdapter
+    platform: campaign_planner.adapters.gcp.iap_identity:IapIdentityAdapter
+    local: campaign_planner.adapters.local.identity:LocalPersonaIdentityAdapter
+    onprem: campaign_planner.adapters.onprem.identity:OnPremIdentityAdapter
+  audience:
+    gcp: campaign_planner.adapters.gcp.bigquery_audience:BigQueryAudienceDataAdapter
+    platform: campaign_planner.adapters.platform.remote_audience:RemoteAudienceDataAdapter
+    local: campaign_planner.adapters.local.audience:LocalAudienceDataAdapter
+    onprem: campaign_planner.adapters.onprem.audience:OnPremAudienceDataAdapter
+  llm:
+    gcp: campaign_planner.adapters.gcp.gemini_llm:GeminiLLMAdapter
+    platform: campaign_planner.adapters.gcp.gemini_llm:GeminiLLMAdapter
+    local: campaign_planner.adapters.local.llm:LocalDeterministicLLMAdapter
+    onprem: campaign_planner.adapters.onprem.llm:OnPremLLMAdapter
+  guardrail:
+    gcp: campaign_planner.adapters.gcp.model_armor_guardrail:ModelArmorGuardrailAdapter
+    platform: campaign_planner.adapters.platform.remote_guardrail:RemoteGuardrailAdapter
+    local: campaign_planner.adapters.local.guardrail:LocalHeuristicGuardrailAdapter
+    onprem: campaign_planner.adapters.onprem.guardrail:OnPremGuardrailAdapter
+  audit:
+    gcp: campaign_planner.adapters.gcp.cloud_logging_audit:CloudLoggingAuditAdapter
+    platform: campaign_planner.adapters.platform.remote_audit:RemoteAuditAdapter
+    local: campaign_planner.adapters.local.audit:LocalAppendOnlyAuditAdapter
+    onprem: campaign_planner.adapters.onprem.audit:OnPremAuditAdapter
+  tracer:
+    gcp: campaign_planner.adapters.gcp.cloud_trace_tracer:CloudTraceTracerAdapter
+    platform: campaign_planner.adapters.gcp.cloud_trace_tracer:CloudTraceTracerAdapter
+    local: campaign_planner.adapters.local.tracer:LocalNoopTracerAdapter
+    onprem: campaign_planner.adapters.onprem.tracer:OnPremTracerAdapter
+  evaluation:
+    gcp: campaign_planner.adapters.gcp.genai_eval:GenAiEvalAdapter
+    platform: campaign_planner.adapters.platform.remote_evaluation:RemoteEvaluationAdapter
+    local: campaign_planner.adapters.local.evaluation:LocalOfflineEvalAdapter
+    onprem: campaign_planner.adapters.onprem.evaluation:OnPremEvalAdapter
+  agent_registry:
+    gcp: campaign_planner.adapters.gcp.a2a_registry:A2ARegistryAdapter
+    platform: campaign_planner.adapters.platform.remote_registry:RemoteRegistryAdapter
+    local: campaign_planner.adapters.local.registry_agent:LocalAgentRegistryAdapter
+    onprem: campaign_planner.adapters.onprem.registry_agent:OnPremAgentRegistryAdapter
+  tool_catalog:
+    gcp: campaign_planner.adapters.gcp.mcp_tool_catalog:McpToolCatalogAdapter
+    platform: campaign_planner.adapters.gcp.mcp_tool_catalog:McpToolCatalogAdapter
+    local: campaign_planner.adapters.local.tool_catalog:LocalToolCatalogAdapter
+    onprem: campaign_planner.adapters.onprem.tool_catalog:OnPremToolCatalogAdapter
+  # Rule R8: a plan sets requires_human_review, so it MUST be routed to the Hrz7 maker-checker
+  # console via the shared review-kit, not left as a per-repo boolean. gcp/platform submit
+  # over authenticated S2S; local enqueues to an in-memory outbox (offline demo/tests); onprem is
+  # the fail-fast sovereign migration placeholder.
+  review_router:
+    gcp: campaign_planner.adapters.platform.review_router:PlatformReviewRouter
+    platform: campaign_planner.adapters.platform.review_router:PlatformReviewRouter
+    local: campaign_planner.adapters.local.review_router:LocalReviewRouter
+    onprem: campaign_planner.adapters.onprem.review_router:OnPremReviewRouter

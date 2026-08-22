@@ -1,0 +1,394 @@
+{
+  "id": "plan-JP-online_retail-2026-07-01",
+  "objective": "loyalty programme push",
+  "market": "JP",
+  "vertical": "online_retail",
+  "total_budget": 90000.0,
+  "segments": [
+    {
+      "segment": {
+        "id": "jp-retail-seg-loyalty",
+        "name": "JP points-loyalty members (FICTIONAL)",
+        "market": "JP",
+        "vertical": "online_retail",
+        "size": 620000,
+        "reachable_size": 540000,
+        "propensity": 0.3,
+        "expected_value": 54.0,
+        "consent_rate": 0.88,
+        "tags": [
+          "loyalty",
+          "points"
+        ],
+        "citations": [
+          {
+            "source_id": "jp-retail-seg-loyalty",
+            "source_type": "audience_data",
+            "title": "JP points-loyalty members",
+            "url": "https://example.test/audience/jp-retail-seg-loyalty",
+            "page": 1,
+            "published_date": null,
+            "snippet": "JP points-loyalty members (FICTIONAL synthetic audience-data row).",
+            "score": 0.9
+          }
+        ],
+        "consented_reachable": 475200
+      },
+      "score": 0.264,
+      "rank": 1,
+      "rationale": "propensity 0.30, value 54, consent 0.88, consented-reachable 475200 -> score 0.26",
+      "citations": [
+        {
+          "source_id": "jp-retail-seg-loyalty",
+          "source_type": "audience_data",
+          "title": "JP points-loyalty members",
+          "url": "https://example.test/audience/jp-retail-seg-loyalty",
+          "page": 1,
+          "published_date": null,
+          "snippet": "JP points-loyalty members (FICTIONAL synthetic audience-data row).",
+          "score": 0.9
+        }
+      ]
+    },
+    {
+      "segment": {
+        "id": "jp-retail-seg-new",
+        "name": "JP first-purchase prospects (FICTIONAL)",
+        "market": "JP",
+        "vertical": "online_retail",
+        "size": 400000,
+        "reachable_size": 320000,
+        "propensity": 0.19,
+        "expected_value": 42.0,
+        "consent_rate": 0.71,
+        "tags": [
+          "acquisition"
+        ],
+        "citations": [
+          {
+            "source_id": "jp-retail-seg-new",
+            "source_type": "audience_data",
+            "title": "JP first-purchase prospects",
+            "url": "https://example.test/audience/jp-retail-seg-new",
+            "page": 1,
+            "published_date": null,
+            "snippet": "JP first-purchase prospects (FICTIONAL synthetic audience-data row).",
+            "score": 0.9
+          }
+        ],
+        "consented_reachable": 227200
+      },
+      "score": 0.119,
+      "rank": 2,
+      "rationale": "propensity 0.19, value 42, consent 0.71, consented-reachable 227200 -> score 0.12",
+      "citations": [
+        {
+          "source_id": "jp-retail-seg-new",
+          "source_type": "audience_data",
+          "title": "JP first-purchase prospects",
+          "url": "https://example.test/audience/jp-retail-seg-new",
+          "page": 1,
+          "published_date": null,
+          "snippet": "JP first-purchase prospects (FICTIONAL synthetic audience-data row).",
+          "score": 0.9
+        }
+      ]
+    }
+  ],
+  "channel_mix": {
+    "market": "JP",
+    "vertical": "online_retail",
+    "total_budget": 90000.0,
+    "lines": [
+      {
+        "channel": "email",
+        "amount": 8250.0,
+        "share": 0.0917,
+        "expected_impressions": 8250000,
+        "expected_reach": 250000,
+        "expected_conversions": 33000.0,
+        "expected_cost_per_conversion": 0.25,
+        "citations": [
+          {
+            "source_id": "jp-online_retail-email-bm",
+            "source_type": "benchmark",
+            "title": "email benchmark JP/online_retail",
+            "url": "https://example.test/benchmark/jp-online_retail-email-bm",
+            "page": 1,
+            "published_date": null,
+            "snippet": "email benchmark JP/online_retail (FICTIONAL synthetic channel benchmark).",
+            "score": 0.9
+          }
+        ]
+      },
+      {
+        "channel": "search",
+        "amount": 7650.0,
+        "share": 0.085,
+        "expected_impressions": 1092857,
+        "expected_reach": 150000,
+        "expected_conversions": 2732.14,
+        "expected_cost_per_conversion": 2.8,
+        "citations": [
+          {
+            "source_id": "jp-online_retail-search-bm",
+            "source_type": "benchmark",
+            "title": "search benchmark JP/online_retail",
+            "url": "https://example.test/benchmark/jp-online_retail-search-bm",
+            "page": 1,
+            "published_date": null,
+            "snippet": "search benchmark JP/online_retail (FICTIONAL synthetic channel benchmark).",
+            "score": 0.9
+          }
+        ]
+      },
+      {
+        "channel": "social",
+        "amount": 22500.0,
+        "share": 0.25,
+        "expected_impressions": 4500000,
+        "expected_reach": 500000,
+        "expected_conversions": 2430.0,
+        "expected_cost_per_conversion": 9.26,
+        "citations": [
+          {
+            "source_id": "jp-online_retail-social-bm",
+            "source_type": "benchmark",
+            "title": "social benchmark JP/online_retail",
+            "url": "https://example.test/benchmark/jp-online_retail-social-bm",
+            "page": 1,
+            "published_date": null,
+            "snippet": "social benchmark JP/online_retail (FICTIONAL synthetic channel benchmark).",
+            "score": 0.9
+          }
+        ]
+      },
+      {
+        "channel": "video",
+        "amount": 24300.0,
+        "share": 0.27,
+        "expected_impressions": 3037500,
+        "expected_reach": 450000,
+        "expected_conversions": 455.62,
+        "expected_cost_per_conversion": 53.33,
+        "citations": [
+          {
+            "source_id": "jp-online_retail-video-bm",
+            "source_type": "benchmark",
+            "title": "video benchmark JP/online_retail",
+            "url": "https://example.test/benchmark/jp-online_retail-video-bm",
+            "page": 1,
+            "published_date": null,
+            "snippet": "video benchmark JP/online_retail (FICTIONAL synthetic channel benchmark).",
+            "score": 0.9
+          }
+        ]
+      },
+      {
+        "channel": "display",
+        "amount": 27300.0,
+        "share": 0.3033,
+        "expected_impressions": 9100000,
+        "expected_reach": 700000,
+        "expected_conversions": 455.0,
+        "expected_cost_per_conversion": 60.0,
+        "citations": [
+          {
+            "source_id": "jp-online_retail-display-bm",
+            "source_type": "benchmark",
+            "title": "display benchmark JP/online_retail",
+            "url": "https://example.test/benchmark/jp-online_retail-display-bm",
+            "page": 1,
+            "published_date": null,
+            "snippet": "display benchmark JP/online_retail (FICTIONAL synthetic channel benchmark).",
+            "score": 0.9
+          }
+        ]
+      }
+    ],
+    "allocated": 90000.0,
+    "expected_conversions": 39072.76,
+    "expected_reach": 2050000,
+    "blended_cost_per_conversion": 2.3,
+    "requires_human_review": true
+  },
+  "reach_frequency": {
+    "market": "JP",
+    "vertical": "online_retail",
+    "impressions": 25980357,
+    "unique_reach": 702274,
+    "addressable": 702400,
+    "average_frequency": 36.99,
+    "effective_reach": 491592,
+    "effective_frequency": 3,
+    "rationale": "25980357 impression(s) across 5 channel(s); 702274 unique people reached of 702400 addressable (100.0%); avg frequency 36.99; 491592 at 3+ effective frequency.",
+    "citations": [
+      {
+        "source_id": "jp-online_retail-email-bm",
+        "source_type": "benchmark",
+        "title": "email benchmark JP/online_retail",
+        "url": "https://example.test/benchmark/jp-online_retail-email-bm",
+        "page": 1,
+        "published_date": null,
+        "snippet": "email benchmark JP/online_retail (FICTIONAL synthetic channel benchmark).",
+        "score": 0.9
+      },
+      {
+        "source_id": "jp-online_retail-search-bm",
+        "source_type": "benchmark",
+        "title": "search benchmark JP/online_retail",
+        "url": "https://example.test/benchmark/jp-online_retail-search-bm",
+        "page": 1,
+        "published_date": null,
+        "snippet": "search benchmark JP/online_retail (FICTIONAL synthetic channel benchmark).",
+        "score": 0.9
+      },
+      {
+        "source_id": "jp-online_retail-social-bm",
+        "source_type": "benchmark",
+        "title": "social benchmark JP/online_retail",
+        "url": "https://example.test/benchmark/jp-online_retail-social-bm",
+        "page": 1,
+        "published_date": null,
+        "snippet": "social benchmark JP/online_retail (FICTIONAL synthetic channel benchmark).",
+        "score": 0.9
+      },
+      {
+        "source_id": "jp-online_retail-video-bm",
+        "source_type": "benchmark",
+        "title": "video benchmark JP/online_retail",
+        "url": "https://example.test/benchmark/jp-online_retail-video-bm",
+        "page": 1,
+        "published_date": null,
+        "snippet": "video benchmark JP/online_retail (FICTIONAL synthetic channel benchmark).",
+        "score": 0.9
+      },
+      {
+        "source_id": "jp-online_retail-display-bm",
+        "source_type": "benchmark",
+        "title": "display benchmark JP/online_retail",
+        "url": "https://example.test/benchmark/jp-online_retail-display-bm",
+        "page": 1,
+        "published_date": null,
+        "snippet": "display benchmark JP/online_retail (FICTIONAL synthetic channel benchmark).",
+        "score": 0.9
+      }
+    ],
+    "reach_pct": 0.9998
+  },
+  "flight_schedule": {
+    "market": "JP",
+    "vertical": "online_retail",
+    "start_date": "2026-07-01",
+    "end_date": "2026-07-28",
+    "strategy": "even",
+    "total_budget": 90000.0,
+    "legs": [
+      {
+        "index": 0,
+        "start_date": "2026-07-01",
+        "end_date": "2026-07-07",
+        "weight": 0.25,
+        "amount": 22500.0
+      },
+      {
+        "index": 1,
+        "start_date": "2026-07-08",
+        "end_date": "2026-07-14",
+        "weight": 0.25,
+        "amount": 22500.0
+      },
+      {
+        "index": 2,
+        "start_date": "2026-07-15",
+        "end_date": "2026-07-21",
+        "weight": 0.25,
+        "amount": 22500.0
+      },
+      {
+        "index": 3,
+        "start_date": "2026-07-22",
+        "end_date": "2026-07-28",
+        "weight": 0.25,
+        "amount": 22500.0
+      }
+    ],
+    "paced_total": 90000.0
+  },
+  "creative_brief": "Lead with the offer's single clearest benefit for the selected high-propensity segments, kept consistent across channels and localised per market. Sequence messaging to the paced flight; every claim must be substantiated. This brief is grounded in the deterministic plan and requires human review before any spend.",
+  "summary": "The plan targets the highest-scoring consented segments, allocates the budget across channels by deterministic cost-per-conversion, and paces spend across the flight. All figures are deterministic; the allocation requires human sign-off before any budget is committed.",
+  "citations": [
+    {
+      "source_id": "jp-retail-seg-loyalty",
+      "source_type": "audience_data",
+      "title": "JP points-loyalty members",
+      "url": "https://example.test/audience/jp-retail-seg-loyalty",
+      "page": 1,
+      "published_date": null,
+      "snippet": "JP points-loyalty members (FICTIONAL synthetic audience-data row).",
+      "score": 0.9
+    },
+    {
+      "source_id": "jp-retail-seg-new",
+      "source_type": "audience_data",
+      "title": "JP first-purchase prospects",
+      "url": "https://example.test/audience/jp-retail-seg-new",
+      "page": 1,
+      "published_date": null,
+      "snippet": "JP first-purchase prospects (FICTIONAL synthetic audience-data row).",
+      "score": 0.9
+    },
+    {
+      "source_id": "jp-online_retail-email-bm",
+      "source_type": "benchmark",
+      "title": "email benchmark JP/online_retail",
+      "url": "https://example.test/benchmark/jp-online_retail-email-bm",
+      "page": 1,
+      "published_date": null,
+      "snippet": "email benchmark JP/online_retail (FICTIONAL synthetic channel benchmark).",
+      "score": 0.9
+    },
+    {
+      "source_id": "jp-online_retail-search-bm",
+      "source_type": "benchmark",
+      "title": "search benchmark JP/online_retail",
+      "url": "https://example.test/benchmark/jp-online_retail-search-bm",
+      "page": 1,
+      "published_date": null,
+      "snippet": "search benchmark JP/online_retail (FICTIONAL synthetic channel benchmark).",
+      "score": 0.9
+    },
+    {
+      "source_id": "jp-online_retail-social-bm",
+      "source_type": "benchmark",
+      "title": "social benchmark JP/online_retail",
+      "url": "https://example.test/benchmark/jp-online_retail-social-bm",
+      "page": 1,
+      "published_date": null,
+      "snippet": "social benchmark JP/online_retail (FICTIONAL synthetic channel benchmark).",
+      "score": 0.9
+    },
+    {
+      "source_id": "jp-online_retail-video-bm",
+      "source_type": "benchmark",
+      "title": "video benchmark JP/online_retail",
+      "url": "https://example.test/benchmark/jp-online_retail-video-bm",
+      "page": 1,
+      "published_date": null,
+      "snippet": "video benchmark JP/online_retail (FICTIONAL synthetic channel benchmark).",
+      "score": 0.9
+    },
+    {
+      "source_id": "jp-online_retail-display-bm",
+      "source_type": "benchmark",
+      "title": "display benchmark JP/online_retail",
+      "url": "https://example.test/benchmark/jp-online_retail-display-bm",
+      "page": 1,
+      "published_date": null,
+      "snippet": "display benchmark JP/online_retail (FICTIONAL synthetic channel benchmark).",
+      "score": 0.9
+    }
+  ],
+  "requires_human_review": true,
+  "generated_at": "2026-06-24T11:24:27.231449+00:00"
+}

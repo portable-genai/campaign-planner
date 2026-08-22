@@ -1,0 +1,98 @@
+# Common-base practices audit
+
+- **Repo:** `campaign-planner`
+- **Catalog id:** Mkt2 (package `campaign_planner`, env prefix `MKT_CAMPAIGN`)
+- **Catalogue reference:** [`common-base-practices.md`](https://github.com/portable-genai/.github/blob/main/common-base-practices.md) (checks A1..G7)
+- **Authoritative source:** reconciled to the maintainer's cross-repository audit matrix,
+  authoritative on verdicts.
+- **Note:** Mkt2 is a **marketing vertical** (deterministic campaign-planning / budget-allocation
+  engine over aggregate, consent-gated audience segments). Each check below was run against the
+  current tree with this repo's names substituted (`campaign_planner`, `MKT_CAMPAIGN_PROFILE`,
+  CLI `mkt-campaign`). Several security checks are **N-A by design** because the domain processes
+  aggregate audience data, not raw customer identifiers, and owns no retrieval store or login flow;
+  these omissions are declared (not fabricated away) in `ARCHITECTURE.md` §7 (SC-1, SC-4, SC-9).
+
+Applicability: Mkt2 ships a UI (`ui/`) and Terraform (`infra/terraform/`), so `[ui]` and
+`[infra]` checks apply. **Load-bearing** checks (a FAIL breaks a shared catalog guarantee) are
+A1-A6, C1-C5, D1-D3 and E1: A1-A6 all PASS; C1 PASS with C2/C3/C4 N-A-by-design and C5 PASS;
+D1-D3 all PASS; E1 PASS. No load-bearing FAIL or PARTIAL remains.
+
+| Check | Verdict | Evidence / gap |
+|---|---|---|
+| **A1** Hexagonal core, stdlib-only domain `[all]` **(load-bearing)** | PASS | `grep -rE "google\|fastapi\|httpx\|pydantic\|boto3\|azure" src/campaign_planner/domain/` returns nothing. |
+| **A2** Ports are `@runtime_checkable` Protocols, re-exported once `[all]` **(load-bearing)** | PASS | 9 ports across `ports/*.py` each carry `@runtime_checkable`; re-exported from `ports/__init__.py`; `test_port_parity.py::test_all_protocols_are_runtime_checkable` asserts it. |
+| **A3** Swappable profiles by one config value `[all]` **(load-bearing)** | PASS | `MKT_CAMPAIGN_PROFILE = local\|gcp\|platform\|onprem`; per-port `adapters:` map in `config/settings.yaml`; `Container._bind` selects the profile entry, falling back to `gcp` only under the `platform` alias; the value is validated at resolution, so an unknown or mis-capitalised profile raises instead of binding something nothing chose; offline suite runs on `pip install -e ".[dev]"` with no GCP SDK. |
+| **A4** One adapter constructor `Adapter(settings)` `[all]` **(load-bearing)** | PASS | `test_port_parity.py::test_adapter_constructs_with_single_settings_arg` parametrises over `SDK_FREE_PROFILES` (onprem, local) x every port; `config.instantiate` constructs each from the dotted path with one `Settings` arg. |
+| **A5** Lazy cloud imports in cloud adapters `[all]` **(load-bearing)** | PASS | `grep -n "^from google\|^import google\|^from opentelemetry" src/campaign_planner/adapters/gcp/*.py` returns nothing (all indented into methods); `test_gcp_adapters_import_safe.py` imports every gcp module with no SDK installed. |
+| **A6** Contract tests enforce the hexagon; port map cannot drift `[all]` **(load-bearing)** | PASS (minor drift) | `test_port_parity.py` (protocol satisfaction, single-settings constructor, runtime_checkable, onprem+local parity) + `test_behavioral_parity.py` (same request through local + onprem placeholder). Minor drift: the port-map guard is one-directional (`PORT_PROTOCOLS` is iterated against settings, not a full set-equality), so a settings binding with no `PORT_PROTOCOLS` entry would not fail loudly. |
+| **A7** Kernel vs vertical split in the domain `[all]` | PASS | `domain/kernel.py` owns the provider-neutral `ThinkingLevel`; vertical `models.py` imports it from the kernel, never the reverse. `test_kernel_boundary.py` prevents `Plan`, `ChannelMix` and `AudienceSegment` leaking into it. |
+| **A8** Consume platform horizontals via thin delegates `[all]` | PASS | `adapters/platform/remote_*.py` are thin marshalling clients for each horizontal concern this repo touches: guardrail (Hrz1), agent registry (Hrz3), evaluation (Hrz4), audit (Hrz5), plus audience; no business logic re-implemented behind a non-port path. Some `record()` bodies are marshalling-phase stubs (`NotImplementedError`), not logic. |
+| **B1** Consequential math is deterministic, pure, replayable `[agentic]` | PASS | `allocation_service.py`, `audience_service.py`, `reach_service.py`, `pacing_service.py` are pure stdlib (no clock/random/network), unit-tested (`test_allocation_service.py::test_allocation_is_deterministic`, `test_audience_service.py::test_select_is_deterministic`); the LLM only drafts the creative brief / summary and never sets a number. |
+| **B2** Every claim carries a citation; empty retrieval is a hard error `[agentic]` | PASS | `Citation` on every `SelectedSegment` / `BudgetLine`, collected onto the `Plan`; `CampaignPlanService.build_plan` raises `NoAudienceError` when selection yields nothing (never a degraded/ungrounded plan). |
+| **B3** Maker-checker on every consequential output `[agentic]` | PASS | `Plan.requires_human_review: bool = True` default + `ChannelMix.requires_human_review` returns `True` unconditionally; `_record` audits `ESCALATED`; asserted by `test_allocation_service.py::test_requires_human_review_is_true` and `test_plan_pipeline.py` (`plan.requires_human_review is True`, `test_audit_records_the_plan`). |
+| **B4** Bank-owned policy numbers in config, defaults = reference `[all]` | PASS | Validated `PolicySettings` plus `config/settings.yaml:policy` own audience, allocation, reach and pacing values. `make_plan_service` threads them into all four deterministic engines; `test_policy_wiring.py` proves overrides alter the constructed policy services without domain edits. |
+| **B5** Open taxonomy: `StrEnum` vocabularies, engines typed on `str` `[all]` | PASS | All ten vocabularies are `StrEnum` (via the shared `hex-service-kit` commons): members ARE their wire values and `.value` call sites are unchanged. |
+| **C1** Identity resolved server-side; client actor/ACL discarded `[all]` **(load-bearing)** | PASS | `api/schemas.py::PlanRequestModel` carries no `actor` field; `api/security.py::get_principal` builds a `RequestContext` from headers and resolves a verified `Principal` via the active `IdentityPort` on every route; failure is a 401; `plan.build_plan(request, actor=principal.actor)`. |
+| **C2** Object-level authz derived server-side; tenant isolation by data tags `[all]` **(load-bearing)** | N-A | No retrieval / knowledge-base port and no per-tenant customer store: the audience/benchmark warehouse is shared aggregate reference data, not tenant-owned records, so there is no ACL-scoped query layer or resource/tenant tag to enforce. Declared in `ARCHITECTURE.md` §7 (SC-4 omitted). |
+| **C3** Redact before everything `[agentic]` **(load-bearing)** | N-A | No PII-redaction step: campaign planning runs over aggregate, consent-gated audience segments and channel benchmarks, not raw customer identifiers, so there is no de-identify-at-the-boundary path to prove. Declared in `ARCHITECTURE.md` §7 (SC-1 omitted). |
+| **C4** Jurisdiction-driven PII packs keep the gate honest `[agentic]` **(load-bearing)** | N-A | Follows from C3: with no PII surface there is no runtime redactor and no jurisdiction PII pack to keep the eval gate honest. (The gcp Model Armor adapter can request DLP de-identify at the boundary, but the domain has no identifier stream.) |
+| **C5** Fail-closed defaults everywhere `[all]` **(load-bearing)** | PASS | CORS is `cors_allowlist` (explicit `MKT_CAMPAIGN_CORS_ORIGINS`, never `*`; dev-origin fallback ONLY under local); Makefile `API_HOST ?= 127.0.0.1` (this app has no `main()`, the Makefile is the dev entry). |
+| **C6** Security-header baseline on every surface `[ui]` | PASS | The UI keeps its single nonce-CSP emitter. API middleware now emits `nosniff`, `Referrer-Policy: no-referrer` and profile-gated HSTS for secure profiles while local HTTP remains usable; `test_api_security_headers.py` proves both branches. |
+| **C6a** Console CSP carries a per-request nonce and the page provably hydrates `[ui]` **(load-bearing)** | PASS | `script-src 'self' 'nonce-<per-request>' 'strict-dynamic'`, minted in `ui/proxy.ts` and set on both the request and response headers; `app/layout.tsx` is `force-dynamic` (the route builds as `ƒ (Dynamic)`, not `○ (Static)`) and `next.config.mjs` refuses the build without it. Proven by EXECUTION: `ui/scripts/assert-hydratable.mjs` starts the built server and asserts all 9 script tags carry the served nonce; it was driven red twice first, once on the pre-fix `frame-ancestors`-only policy and once on the nonce-plus-static-prerender trap. Wired into `make ui-check` and the CI `ui-build` job. |
+| **C7** S2S calls authenticated, https-only outside loopback `[all]` | PASS | the one real outbound call (the Hrz4 eval client) is re-based on the shared `PromotionGateClient` with the S2S bearer attached (`_s2s.headers()`, `HRZ_S2S_TOKEN`) and the https-only base-URL guard enforced. The other platform delegates are phase stubs (raise `NotImplementedError`) and gain the same hardening when wired. |
+| **C8** Web login flow hardening `[ui]` | N-A | The repo owns no login flow: the `gcp`/`platform` `IapIdentityAdapter` delegates JWT verification to Google's `id_token.verify_token` (no repo-owned JWKS + algorithm-pinning routine), and `local` uses seeded personas. Declared in `ARCHITECTURE.md` §7 (SC-9 omitted). |
+| **C9** Tamper-evident audit with honest limits `[all]` | PASS | `LocalAppendOnlyAuditAdapter` wraps the shared `hex_service_kit.audit.HashChainedAuditLog`: SHA-256 chain, UPDATE/DELETE triggers, JSONL export/restore, `verify_chain()`, honest-limits docstring. Proven by `tests/unit/test_audit_chain.py`. |
+| **C10** No secret values in the repo `[all]` | PASS | `config/settings.yaml` uses only `${VAR:-default}` interpolation tokens (project id, profile, agent-engine id, local paths); the IAP audience is read from `MKT_CAMPAIGN_IAP_AUDIENCE` at adapter construction and never logged; no literal secret material. |
+| **D1** Locked, reproducible installs everywhere `[all]` **(load-bearing)** | PASS | Committed lockfiles (uv pip compile, py3.12), ruff pinned exactly, Dockerfile installs from the lock; the commons dependency is pinned by tag with an exact SHA in the locks. |
+| **D2** Digest-pinned images, SHA-pinned Actions, dependabot, CI audit `[all]` **(load-bearing)** | PASS | Base image digest-pinned, Actions SHA-pinned, dependabot present, `pip-audit` + `npm audit` hard CI gates. |
+| **D3** Whole gate runs offline, zero org secrets `[all]` **(load-bearing)** | PASS | `.github/workflows/ci.yaml` sets `MKT_CAMPAIGN_PROFILE: local`, references no `secrets.`, and runs ruff + ruff format --check + mypy + `pytest -m 'not integration'` + `python eval/run_eval.py` + a real API boot smoke, plus the Next.js console build. |
+| **D4** Non-root, minimal, healthchecked container `[infra]` | PASS | `Dockerfile`: multi-stage (build toolchain stays in the builder), `USER appuser` (uid 10001), `HEALTHCHECK` against `/healthz`, `EXPOSE 8101`, `MKT_CAMPAIGN_PROFILE=gcp` set explicitly in the runtime stage. |
+| **D5** Deploy-time residency/sovereignty, parameterised `[infra]` | PASS | The existing parameterised region, Org Policy, CMEK, VPC-SC and WORM controls remain. CI and `make tf-validate` now run format, backend-free init and validate without credentials; local validation passed with google/google-beta 6.50.0. Live enforcement is deployment evidence, not a code gap. |
+| **E1** Offline eval smoke guards merge; Hrz4 owns promotion `[agentic]` **(load-bearing)** | PASS | `eval/run_eval.py` has the `--mode smoke|gate` split via the shared `agent-eval-kit` scaffold; `remote_evaluation.py` re-based on the shared `PromotionGateClient` (registered bundle `mkt2-campaign` and the report's dataset_id label both unchanged, pinned by the respx contract test); gate mode refuses to run outside `MKT_CAMPAIGN_PROFILE=platform|gcp`. |
+| **E2** Safety metric with strictest threshold, no false green `[agentic]` | PASS | The strictest metrics `review_safety >= 0.99` and `budget_accuracy >= 0.99` are deterministic (maker-checker flag always True; allocation + pacing reconcile exactly), so they cannot go falsely green. The catalogue's PII-detector variant (gate detector sharing the runtime redactor's patterns) is N-A here (no PII surface, see C3/C4). |
+| **E3** Fixtures and golden data obviously fictional `[all]` | PASS | `eval/datasets/golden_plans.jsonl` header: "OBVIOUSLY-FICTIONAL synthetic cases"; `DEMO.md` and `README.md` carry the "every name suffixed FICTIONAL, every URL on example.test" live-data warning. |
+| **F1** Demo is code, offline, one command, presenter-paced `[all]` | PASS | `make demo` runs the real `CampaignPlanService` flow offline and renders the audit-first HTML (`scripts/demo.py` + `scripts/render_plan_ui.py`); `make demo-server` is a presenter-controlled offline server. No cloud or API key. |
+| **F2** Demo cannot rot silently `[all]` | PASS | Three layers, all executed. (1) Stable evidence hooks: the renderer and demo server emit `data-panel`, `data-plan-*`, `data-kpi-*`, `data-segment-*`, `data-channel-*` and `data-citation*` attributes carrying every load-bearing figure. (2) In-process, inside `make gate`: `scripts/demo_selftest.py` builds all four live plans and asserts citations, exact budget reconciliation and review state. (3) Served stage, also inside `make gate`: the same script starts the REAL HTTP server on an ephemeral port, walks every presenter step over HTTP and compares each hook in the SERVED bytes against the value the RUNNING app computed. (4) Browser stage: `tests/browser/test_served_demo_ui.py` drives the same served pages through headless Chromium pinned by the `[demo]` extra (`playwright==1.62.0`); `make demo-browser` runs it. RED proof: planting a stale hard-coded citation figure and stripping one `data-panel` hook failed BOTH the served stage and the browser stage, each defect independently; restoring made both green. Scope note: the browser stage self-skips when the `[demo]` extra is absent, so a day-one offline install still gates without a browser download; the served stage is unconditional. |
+| **F3** Portability claim is executable `[all]` | PASS | `scripts/portability_demo.py` runs offline and exits non-zero on any failed claim: profile swap (local vs onprem), all-9-port parity, replayable open-format audit, identity swap. It honestly scopes out tamper-evidence / export-reload (not applicable to the local sink, see C9). |
+| **G1** Declared doc authority order, kept true `[all]` | PASS | Root `AGENTS.md` declares `SPEC.md > ARCHITECTURE.md > COMPLIANCE.md > README.md > demo/FAQ`, with executable code and tests as shipped evidence. The named documents exist and match the four-profile implementation. |
+| **G2** Compliance mapping table + adopter-owned crosswalk `[all]` | PASS | `COMPLIANCE.md` present: P-01..P-13 + R1..R8 mapping with an Evidence column naming real files, plus an adopter-owned regulator crosswalk appendix. `ARCHITECTURE.md` still carries the control map too. |
+| **G3** Documented, mechanised fork path `[all]` | PASS | `docs/ADOPTING.md` present (keep-vs-rewrite layers, core-vs-adopter file list, mechanical-rebrand + human-decision checklist) and `scripts/rename_fork.py` does the one-pass package / CLI / `MKT_CAMPAIGN_` prefix / resource / dist rename. Dry-run verified: sensible plan, writes nothing, exits 0, git clean. |
+| **G4** Retired `[all]` | N-A (retired) | Retired practice. Releases are tracked by git tag and the `pyproject.toml` version. |
+| **G5** Role-specific FAQs referencing sibling systems `[all]` | PASS | `docs/faq/` present: `README.md` index + five role FAQs (security, portability, features, adoption, compliance), each tailored to this repo's facts (aggregate consent-gated audience data, no PII surface, deterministic budget / channel optimiser) and pointing at sibling systems (Hrz1 / Hrz3 / Hrz4 / Hrz5 / Hrz7, Mkt6) rather than duplicating them. |
+| **G6** Contribution docs cover full extension touch list `[all]` | PASS | `CONTRIBUTING.md` now separates adapter and new-port workflows and names every required touch point: Protocol, re-export, all profile bindings, `PORT_PROTOCOLS`, composition root, behavior tests and evidence docs. |
+| **G7** Markdown discipline: minimise em-dashes, validate mermaid `[all]` | PASS | The em-dash count is 0 across `README.md`, `SPEC.md`, `ARCHITECTURE.md`, `CONTRIBUTING.md`, `DEMO.md`, `docs/README.md`, `docs/embedding-and-identity.md`. |
+
+**Verdict counts:** 37 PASS, 0 PARTIAL, 0 FAIL, 5 N-A (42 checks).
+Load-bearing set (A1-A6, C1-C5, D1-D3, E1): A1-A6 all PASS; C1 PASS, C2/C3/C4 N-A-by-design,
+C5 PASS; D1-D3 all PASS; E1 PASS. No load-bearing FAIL or PARTIAL remains.
+
+## Gaps carried to systems/
+
+Tracked on the Mkt2 row of
+the maintainer's per-system register
+under `Capability gaps`.
+
+No load-bearing gaps remain: **D1** (committed `requirements*.lock`, lock-installed CI +
+Dockerfile), **D2** (digest-pinned base image, SHA-pinned Actions, `dependabot.yml`, `pip-audit`
++ `npm audit` hard gates), **E1** (`eval/run_eval.py --mode smoke|gate` split on the shared
+`agent-eval-kit`, gate routed to the Hrz4 client) and **C5** (`API_HOST` loopback default +
+profile-gated `cors_allowlist`). Non-load-bearing: **C7** (`adapters/platform/_s2s.py`
+bearer + https-only guard on the Hrz4 eval client), **C9** (hash-chained WORM audit via
+`hex_service_kit`) and **B5** (`StrEnum` taxonomy). The mandated docs (`docs/runbook.md`,
+`docs/onprem-migration.md`) and the real ADK agent runtime (`src/campaign_planner/agent/`:
+`root_agent.py` + tools) are in place, so those `Capability gaps` are cleared too.
+**G2** is PASS: `COMPLIANCE.md` carries the P-01..P-13 + R1..R8 mapping (Evidence column
+naming real files) and the adopter-owned regulator crosswalk appendix.
+
+**G3, G5** are PASS. Additive files
+only: `docs/ADOPTING.md` + `scripts/rename_fork.py` (G3, rename dry-run verified to write nothing
+and exit 0) and
+`docs/faq/` with the five role FAQs (G5). G4 is a retired practice. These are non-load-bearing quality-of-adoption checks.
+
+No open items remain in this matrix. F2 is PASS, backed by the served
+stage and the pinned headless-browser walkthrough described in its row above. Live managed
+enforcement is still deployment evidence and is not claimed by any offline gate here.
+
+C2, C3, C4 and C8 are **N-A by design** for this vertical (aggregate audience data with no
+PII stream, no retrieval store, no repo-owned login), each declared in `ARCHITECTURE.md` §7
+(SC-1 / SC-4 / SC-9), not silently skipped.

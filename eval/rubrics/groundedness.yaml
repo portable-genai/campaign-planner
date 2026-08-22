@@ -1,0 +1,16 @@
+# Groundedness rubric for the D2 campaign plan.
+#
+# Every figure in the plan (each selected segment and each budget line) must be backed by at
+# least one Citation. The offline gate (eval/run_eval.py) enforces the threshold below; the
+# production Gen AI evaluation service uses the same metric name pre-promotion.
+metric: plan_groundedness
+threshold: 0.80
+description: >-
+  Fraction of plans whose selected segments and budget lines all carry at least one
+  citation. A plan built on uncited figures fails.
+companion_metrics:
+  citation_accuracy:
+    threshold: 0.90
+    description: >-
+      Fraction of cited source ids that appear in the derived evidence set (no fabricated
+      citations).

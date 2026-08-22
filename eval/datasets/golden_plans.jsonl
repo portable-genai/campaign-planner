@@ -1,0 +1,10 @@
+# Golden plan set for the D2 offline eval gate. OBVIOUSLY-FICTIONAL synthetic cases.
+# Each line: a (objective, market, vertical, total_budget, pacing) request. Covers BOTH
+# verticals (banking AND online retail) across ALL THREE markets (JP, AU, SG). The gate
+# asserts groundedness, citation accuracy, exact budget reconciliation, and review safety.
+{"id": "sg-banking", "objective": "savings account acquisition", "market": "SG", "vertical": "banking", "total_budget": 120000, "pacing": "even"}
+{"id": "jp-banking", "objective": "multi-currency wallet launch", "market": "JP", "vertical": "banking", "total_budget": 200000, "pacing": "front_loaded"}
+{"id": "au-banking", "objective": "home loan refinance drive", "market": "AU", "vertical": "banking", "total_budget": 180000, "pacing": "back_loaded"}
+{"id": "sg-retail", "objective": "cart abandonment recovery", "market": "SG", "vertical": "online_retail", "total_budget": 60000, "pacing": "even"}
+{"id": "jp-retail", "objective": "loyalty programme push", "market": "JP", "vertical": "online_retail", "total_budget": 90000, "pacing": "front_loaded"}
+{"id": "au-retail", "objective": "seasonal sale campaign", "market": "AU", "vertical": "online_retail", "total_budget": 110000, "pacing": "back_loaded"}

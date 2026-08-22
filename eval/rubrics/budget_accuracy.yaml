@@ -1,0 +1,15 @@
+# Budget-reconciliation accuracy rubric for D2.
+#
+# The deterministic allocation and the pacing calendar must each sum back to the requested
+# total budget (within a small currency rounding tolerance), and every plan must always
+# carry the human-review flag (nothing spend-affecting auto-executes).
+metric: budget_accuracy
+threshold: 0.99
+description: >-
+  Fraction of golden cases where the channel-mix allocation AND the flight pacing reconcile
+  to the requested total budget within tolerance.
+companion_metrics:
+  review_safety:
+    threshold: 0.99
+    description: >-
+      Fraction of plans that correctly set requires_human_review=True (maker-checker).

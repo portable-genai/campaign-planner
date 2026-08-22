@@ -1,0 +1,395 @@
+{
+  "id": "plan-AU-online_retail-2026-07-01",
+  "objective": "seasonal sale campaign",
+  "market": "AU",
+  "vertical": "online_retail",
+  "total_budget": 110000.0,
+  "segments": [
+    {
+      "segment": {
+        "id": "au-retail-seg-bnpl",
+        "name": "AU BNPL-friendly shoppers (FICTIONAL)",
+        "market": "AU",
+        "vertical": "online_retail",
+        "size": 240000,
+        "reachable_size": 200000,
+        "propensity": 0.36,
+        "expected_value": 88.0,
+        "consent_rate": 0.86,
+        "tags": [
+          "bnpl",
+          "checkout"
+        ],
+        "citations": [
+          {
+            "source_id": "au-retail-seg-bnpl",
+            "source_type": "audience_data",
+            "title": "AU BNPL-friendly shoppers",
+            "url": "https://example.test/audience/au-retail-seg-bnpl",
+            "page": 1,
+            "published_date": null,
+            "snippet": "AU BNPL-friendly shoppers (FICTIONAL synthetic audience-data row).",
+            "score": 0.9
+          }
+        ],
+        "consented_reachable": 172000
+      },
+      "score": 0.3096,
+      "rank": 1,
+      "rationale": "propensity 0.36, value 88, consent 0.86, consented-reachable 172000 -> score 0.31",
+      "citations": [
+        {
+          "source_id": "au-retail-seg-bnpl",
+          "source_type": "audience_data",
+          "title": "AU BNPL-friendly shoppers",
+          "url": "https://example.test/audience/au-retail-seg-bnpl",
+          "page": 1,
+          "published_date": null,
+          "snippet": "AU BNPL-friendly shoppers (FICTIONAL synthetic audience-data row).",
+          "score": 0.9
+        }
+      ]
+    },
+    {
+      "segment": {
+        "id": "au-retail-seg-seasonal",
+        "name": "AU seasonal-sale browsers (FICTIONAL)",
+        "market": "AU",
+        "vertical": "online_retail",
+        "size": 350000,
+        "reachable_size": 280000,
+        "propensity": 0.24,
+        "expected_value": 60.0,
+        "consent_rate": 0.82,
+        "tags": [
+          "seasonal",
+          "sale"
+        ],
+        "citations": [
+          {
+            "source_id": "au-retail-seg-seasonal",
+            "source_type": "audience_data",
+            "title": "AU seasonal-sale browsers",
+            "url": "https://example.test/audience/au-retail-seg-seasonal",
+            "page": 1,
+            "published_date": null,
+            "snippet": "AU seasonal-sale browsers (FICTIONAL synthetic audience-data row).",
+            "score": 0.9
+          }
+        ],
+        "consented_reachable": 229600
+      },
+      "score": 0.1625,
+      "rank": 2,
+      "rationale": "propensity 0.24, value 60, consent 0.82, consented-reachable 229600 -> score 0.16",
+      "citations": [
+        {
+          "source_id": "au-retail-seg-seasonal",
+          "source_type": "audience_data",
+          "title": "AU seasonal-sale browsers",
+          "url": "https://example.test/audience/au-retail-seg-seasonal",
+          "page": 1,
+          "published_date": null,
+          "snippet": "AU seasonal-sale browsers (FICTIONAL synthetic audience-data row).",
+          "score": 0.9
+        }
+      ]
+    }
+  ],
+  "channel_mix": {
+    "market": "AU",
+    "vertical": "online_retail",
+    "total_budget": 110000.0,
+    "lines": [
+      {
+        "channel": "email",
+        "amount": 10689.02,
+        "share": 0.0972,
+        "expected_impressions": 10689020,
+        "expected_reach": 250000,
+        "expected_conversions": 42756.08,
+        "expected_cost_per_conversion": 0.25,
+        "citations": [
+          {
+            "source_id": "au-online_retail-email-bm",
+            "source_type": "benchmark",
+            "title": "email benchmark AU/online_retail",
+            "url": "https://example.test/benchmark/au-online_retail-email-bm",
+            "page": 1,
+            "published_date": null,
+            "snippet": "email benchmark AU/online_retail (FICTIONAL synthetic channel benchmark).",
+            "score": 0.9
+          }
+        ]
+      },
+      {
+        "channel": "search",
+        "amount": 9113.41,
+        "share": 0.0828,
+        "expected_impressions": 1301916,
+        "expected_reach": 150000,
+        "expected_conversions": 3254.79,
+        "expected_cost_per_conversion": 2.8,
+        "citations": [
+          {
+            "source_id": "au-online_retail-search-bm",
+            "source_type": "benchmark",
+            "title": "search benchmark AU/online_retail",
+            "url": "https://example.test/benchmark/au-online_retail-search-bm",
+            "page": 1,
+            "published_date": null,
+            "snippet": "search benchmark AU/online_retail (FICTIONAL synthetic channel benchmark).",
+            "score": 0.9
+          }
+        ]
+      },
+      {
+        "channel": "social",
+        "amount": 27378.05,
+        "share": 0.2489,
+        "expected_impressions": 5475610,
+        "expected_reach": 500000,
+        "expected_conversions": 2956.83,
+        "expected_cost_per_conversion": 9.26,
+        "citations": [
+          {
+            "source_id": "au-online_retail-social-bm",
+            "source_type": "benchmark",
+            "title": "social benchmark AU/online_retail",
+            "url": "https://example.test/benchmark/au-online_retail-social-bm",
+            "page": 1,
+            "published_date": null,
+            "snippet": "social benchmark AU/online_retail (FICTIONAL synthetic channel benchmark).",
+            "score": 0.9
+          }
+        ]
+      },
+      {
+        "channel": "video",
+        "amount": 28690.24,
+        "share": 0.2608,
+        "expected_impressions": 3586280,
+        "expected_reach": 450000,
+        "expected_conversions": 537.94,
+        "expected_cost_per_conversion": 53.33,
+        "citations": [
+          {
+            "source_id": "au-online_retail-video-bm",
+            "source_type": "benchmark",
+            "title": "video benchmark AU/online_retail",
+            "url": "https://example.test/benchmark/au-online_retail-video-bm",
+            "page": 1,
+            "published_date": null,
+            "snippet": "video benchmark AU/online_retail (FICTIONAL synthetic channel benchmark).",
+            "score": 0.9
+          }
+        ]
+      },
+      {
+        "channel": "display",
+        "amount": 34129.28,
+        "share": 0.3103,
+        "expected_impressions": 11376427,
+        "expected_reach": 700000,
+        "expected_conversions": 568.82,
+        "expected_cost_per_conversion": 60.0,
+        "citations": [
+          {
+            "source_id": "au-online_retail-display-bm",
+            "source_type": "benchmark",
+            "title": "display benchmark AU/online_retail",
+            "url": "https://example.test/benchmark/au-online_retail-display-bm",
+            "page": 1,
+            "published_date": null,
+            "snippet": "display benchmark AU/online_retail (FICTIONAL synthetic channel benchmark).",
+            "score": 0.9
+          }
+        ]
+      }
+    ],
+    "allocated": 110000.0,
+    "expected_conversions": 50074.46,
+    "expected_reach": 2050000,
+    "blended_cost_per_conversion": 2.2,
+    "requires_human_review": true
+  },
+  "reach_frequency": {
+    "market": "AU",
+    "vertical": "online_retail",
+    "impressions": 32429253,
+    "unique_reach": 401600,
+    "addressable": 401600,
+    "average_frequency": 80.75,
+    "effective_reach": 281120,
+    "effective_frequency": 3,
+    "rationale": "32429253 impression(s) across 5 channel(s); 401600 unique people reached of 401600 addressable (100.0%); avg frequency 80.75; 281120 at 3+ effective frequency.",
+    "citations": [
+      {
+        "source_id": "au-online_retail-email-bm",
+        "source_type": "benchmark",
+        "title": "email benchmark AU/online_retail",
+        "url": "https://example.test/benchmark/au-online_retail-email-bm",
+        "page": 1,
+        "published_date": null,
+        "snippet": "email benchmark AU/online_retail (FICTIONAL synthetic channel benchmark).",
+        "score": 0.9
+      },
+      {
+        "source_id": "au-online_retail-search-bm",
+        "source_type": "benchmark",
+        "title": "search benchmark AU/online_retail",
+        "url": "https://example.test/benchmark/au-online_retail-search-bm",
+        "page": 1,
+        "published_date": null,
+        "snippet": "search benchmark AU/online_retail (FICTIONAL synthetic channel benchmark).",
+        "score": 0.9
+      },
+      {
+        "source_id": "au-online_retail-social-bm",
+        "source_type": "benchmark",
+        "title": "social benchmark AU/online_retail",
+        "url": "https://example.test/benchmark/au-online_retail-social-bm",
+        "page": 1,
+        "published_date": null,
+        "snippet": "social benchmark AU/online_retail (FICTIONAL synthetic channel benchmark).",
+        "score": 0.9
+      },
+      {
+        "source_id": "au-online_retail-video-bm",
+        "source_type": "benchmark",
+        "title": "video benchmark AU/online_retail",
+        "url": "https://example.test/benchmark/au-online_retail-video-bm",
+        "page": 1,
+        "published_date": null,
+        "snippet": "video benchmark AU/online_retail (FICTIONAL synthetic channel benchmark).",
+        "score": 0.9
+      },
+      {
+        "source_id": "au-online_retail-display-bm",
+        "source_type": "benchmark",
+        "title": "display benchmark AU/online_retail",
+        "url": "https://example.test/benchmark/au-online_retail-display-bm",
+        "page": 1,
+        "published_date": null,
+        "snippet": "display benchmark AU/online_retail (FICTIONAL synthetic channel benchmark).",
+        "score": 0.9
+      }
+    ],
+    "reach_pct": 1.0
+  },
+  "flight_schedule": {
+    "market": "AU",
+    "vertical": "online_retail",
+    "start_date": "2026-07-01",
+    "end_date": "2026-07-28",
+    "strategy": "back_loaded",
+    "total_budget": 110000.0,
+    "legs": [
+      {
+        "index": 0,
+        "start_date": "2026-07-01",
+        "end_date": "2026-07-07",
+        "weight": 0.125,
+        "amount": 13750.0
+      },
+      {
+        "index": 1,
+        "start_date": "2026-07-08",
+        "end_date": "2026-07-14",
+        "weight": 0.2083,
+        "amount": 22916.67
+      },
+      {
+        "index": 2,
+        "start_date": "2026-07-15",
+        "end_date": "2026-07-21",
+        "weight": 0.2917,
+        "amount": 32083.33
+      },
+      {
+        "index": 3,
+        "start_date": "2026-07-22",
+        "end_date": "2026-07-28",
+        "weight": 0.375,
+        "amount": 41250.0
+      }
+    ],
+    "paced_total": 110000.0
+  },
+  "creative_brief": "Lead with the offer's single clearest benefit for the selected high-propensity segments, kept consistent across channels and localised per market. Sequence messaging to the paced flight; every claim must be substantiated. This brief is grounded in the deterministic plan and requires human review before any spend.",
+  "summary": "The plan targets the highest-scoring consented segments, allocates the budget across channels by deterministic cost-per-conversion, and paces spend across the flight. All figures are deterministic; the allocation requires human sign-off before any budget is committed.",
+  "citations": [
+    {
+      "source_id": "au-retail-seg-bnpl",
+      "source_type": "audience_data",
+      "title": "AU BNPL-friendly shoppers",
+      "url": "https://example.test/audience/au-retail-seg-bnpl",
+      "page": 1,
+      "published_date": null,
+      "snippet": "AU BNPL-friendly shoppers (FICTIONAL synthetic audience-data row).",
+      "score": 0.9
+    },
+    {
+      "source_id": "au-retail-seg-seasonal",
+      "source_type": "audience_data",
+      "title": "AU seasonal-sale browsers",
+      "url": "https://example.test/audience/au-retail-seg-seasonal",
+      "page": 1,
+      "published_date": null,
+      "snippet": "AU seasonal-sale browsers (FICTIONAL synthetic audience-data row).",
+      "score": 0.9
+    },
+    {
+      "source_id": "au-online_retail-email-bm",
+      "source_type": "benchmark",
+      "title": "email benchmark AU/online_retail",
+      "url": "https://example.test/benchmark/au-online_retail-email-bm",
+      "page": 1,
+      "published_date": null,
+      "snippet": "email benchmark AU/online_retail (FICTIONAL synthetic channel benchmark).",
+      "score": 0.9
+    },
+    {
+      "source_id": "au-online_retail-search-bm",
+      "source_type": "benchmark",
+      "title": "search benchmark AU/online_retail",
+      "url": "https://example.test/benchmark/au-online_retail-search-bm",
+      "page": 1,
+      "published_date": null,
+      "snippet": "search benchmark AU/online_retail (FICTIONAL synthetic channel benchmark).",
+      "score": 0.9
+    },
+    {
+      "source_id": "au-online_retail-social-bm",
+      "source_type": "benchmark",
+      "title": "social benchmark AU/online_retail",
+      "url": "https://example.test/benchmark/au-online_retail-social-bm",
+      "page": 1,
+      "published_date": null,
+      "snippet": "social benchmark AU/online_retail (FICTIONAL synthetic channel benchmark).",
+      "score": 0.9
+    },
+    {
+      "source_id": "au-online_retail-video-bm",
+      "source_type": "benchmark",
+      "title": "video benchmark AU/online_retail",
+      "url": "https://example.test/benchmark/au-online_retail-video-bm",
+      "page": 1,
+      "published_date": null,
+      "snippet": "video benchmark AU/online_retail (FICTIONAL synthetic channel benchmark).",
+      "score": 0.9
+    },
+    {
+      "source_id": "au-online_retail-display-bm",
+      "source_type": "benchmark",
+      "title": "display benchmark AU/online_retail",
+      "url": "https://example.test/benchmark/au-online_retail-display-bm",
+      "page": 1,
+      "published_date": null,
+      "snippet": "display benchmark AU/online_retail (FICTIONAL synthetic channel benchmark).",
+      "score": 0.9
+    }
+  ],
+  "requires_human_review": true,
+  "generated_at": "2026-06-24T11:24:27.231740+00:00"
+}
