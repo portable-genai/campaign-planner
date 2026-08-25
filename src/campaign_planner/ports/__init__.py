@@ -8,7 +8,7 @@ remote-platform, on-prem placeholder, or local) satisfies the same contract.
 from .audience import AudienceDataPort
 from .generation import LlmPort
 from .governance import AgentRegistryPort, ToolCatalogPort
-from .identity import IdentityPort
+from .identity import EndUserAuthUnavailableError, IdentityPort
 from .observability import (
     AuditSinkPort,
     EvaluationGatePort,
@@ -29,5 +29,6 @@ __all__ = [
     "AgentRegistryPort",
     "ToolCatalogPort",
     "IdentityPort",
+    "EndUserAuthUnavailableError",
     "ReviewRouterPort",
 ]
