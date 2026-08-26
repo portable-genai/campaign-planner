@@ -96,3 +96,11 @@ enforcement is still deployment evidence and is not claimed by any offline gate 
 C2, C3, C4 and C8 are **N-A by design** for this vertical (aggregate audience data with no
 PII stream, no retrieval store, no repo-owned login), each declared in `ARCHITECTURE.md` §7
 (SC-1 / SC-4 / SC-9), not silently skipped.
+
+<!-- hosted-CI browser job pilot, 2026-08-26: this repository is the first to carry a
+     `demo-browser` job in the hosted contract. The suite it runs already existed and already
+     passed locally; what is new is that hosted CI now runs it and can no longer be handed a
+     skip, because the runner sets DEMO_BROWSER_REQUIRED for this job and installs
+     requirements-demo.lock ahead of the target. Piloted here before the other seven trees,
+     because hosted CI is the fleet's only real check and a bad job contract reds every open
+     pull request at once. -->
