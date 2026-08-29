@@ -92,7 +92,7 @@ export default function Page() {
         {/* EMBED mode: the host page owns the chrome, so drop our own title block. */}
         {!IS_EMBED ? (
           <>
-            <h1 className="text-base font-semibold">D2 Campaign Planner</h1>
+            <h1 className="text-base font-semibold">Campaign Planner</h1>
             <p className="mb-4 text-xs text-ink-500">
               Cited campaign plans (audience, channel-mix budget allocation, reach /
               frequency, pacing), generic across banking and online retail and the JP/AU/SG

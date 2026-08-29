@@ -11,7 +11,7 @@ import "./globals.css";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "D2 Campaign Planner",
+  title: "Campaign Planner",
   description:
     "Cited campaign plans (audience selection, channel-mix budget allocation, reach / frequency, pacing) generic across banking and online retail and the JP/AU/SG markets.",
 };
