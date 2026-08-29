@@ -72,10 +72,15 @@ Unattended (self-test / recording): `HEADLESS=1 DEMO_AUTO=1 .venv/bin/python scr
 # Terminal 1 - the FastAPI backend on :8101 (local profile):
 make run-api
 
-# Terminal 2 - the console:
-cd ui && npm install && NEXT_PUBLIC_API_BASE=http://localhost:8101 npm run dev
+# Terminal 2 - the console, on a PRODUCTION build:
+cd ui && npm install && NEXT_PUBLIC_API_BASE=http://localhost:8101 npm run build && npm run start
 # open http://localhost:3000
 ```
+
+`NEXT_PUBLIC_*` is inlined by the BUILD, which is why it is set on `npm run build` and not on
+`npm run start`. Demo the built console, never `make run-ui`: that target is the developer
+loop and serves `next dev`, and the standing rule for every demo in the fleet is
+`org-metadata/docs/demos/demo-inventory.md`: production builds only.
 
 Identity is server-verified: the local profile runs with NO IdP and seeds four demo
 personas. The console shows a "Demo identity" picker (local profile only); over curl,
