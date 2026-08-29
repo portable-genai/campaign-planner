@@ -33,7 +33,7 @@ assertion; `onprem` is a client-IdP placeholder.
 
 The one real outbound call today (the Hrz4 promotion-gate client) is built on the shared
 `agent-eval-kit` `PromotionGateClient`, hardened through `adapters/platform/_s2s.py`, which
-delegates to `hex_service_kit.s2s`: it attaches an S2S bearer (`HRZ_S2S_TOKEN`) and enforces
+delegates to `hex_service_kit.s2s`: it attaches an S2S bearer (`S2S_TOKEN`) and enforces
 an https-only base-URL guard. The other platform delegates are marshalling-phase stubs that
 raise `NotImplementedError` and inherit the same hardening when wired.
 
