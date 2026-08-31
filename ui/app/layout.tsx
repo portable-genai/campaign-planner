@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ProvenanceBanner } from "./ProvenanceBanner";
 import "./globals.css";
 
 // REQUIRED by the nonce CSP, not a performance preference. `proxy.ts` mints a per-request script
@@ -26,7 +27,10 @@ export default function RootLayout({
   const embed = process.env.NEXT_PUBLIC_EMBED === "1";
   return (
     <html lang="en">
-      <body className={embed ? undefined : "min-h-screen"}>{children}</body>
+      <body className={embed ? undefined : "min-h-screen"}>
+        <ProvenanceBanner />
+        {children}
+      </body>
     </html>
   );
 }
