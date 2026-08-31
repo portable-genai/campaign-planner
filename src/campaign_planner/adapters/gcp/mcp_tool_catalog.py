@@ -37,6 +37,30 @@ _SCOPE_SCHEMA: dict[str, Any] = {
 }
 
 
+# The FULL input every tool here consumes, declared once because every tool consumes all of it.
+#
+# All three handlers call `build_plan(_request(arguments))` and then project a slice of the
+# result: `audience_segments` returns `.segments`, `allocate_budget` returns `.channel_mix`,
+# `build_plan` returns the whole plan. The projection is the only difference, so a segment list
+# depends on the budget and a channel mix depends on the objective exactly as much as the full
+# plan does.
+#
+# Until 2026-08-31 the two narrow tools declared only their own headline field, with
+# `additionalProperties: False`. That is not a silent default -- it is a REFUSAL: a caller who
+# knew a budget shaped the segmentation could not send it, and `_request` then read
+# `total_budget` as 0.0 and segmented a campaign with no money. Found mechanically by
+# tests/unit/test_mcp_schema_matches_its_handler.py, which compares each declaration against
+# the keys its handler actually reads.
+_PLAN_INPUT_SCHEMA: dict[str, Any] = {
+    "objective": {"type": "string", "description": "Campaign objective."},
+    "total_budget": {"type": "number", "minimum": 1},
+    **_SCOPE_SCHEMA,
+}
+
+#: Required for every tool, because every tool runs the whole plan.
+_PLAN_REQUIRED = ["objective", "total_budget"]
+
+
 def _build_catalog() -> dict[str, ToolSpec]:
     """Declare the governed tools with explicit, least-privilege input schemas."""
     return {
@@ -48,11 +72,8 @@ def _build_catalog() -> dict[str, ToolSpec]:
             ),
             input_schema={
                 "type": "object",
-                "properties": {
-                    "objective": {"type": "string", "description": "Campaign objective."},
-                    **_SCOPE_SCHEMA,
-                },
-                "required": ["objective"],
+                "properties": dict(_PLAN_INPUT_SCHEMA),
+                "required": list(_PLAN_REQUIRED),
                 "additionalProperties": False,
             },
         ),
@@ -64,11 +85,8 @@ def _build_catalog() -> dict[str, ToolSpec]:
             ),
             input_schema={
                 "type": "object",
-                "properties": {
-                    "total_budget": {"type": "number", "minimum": 1},
-                    **_SCOPE_SCHEMA,
-                },
-                "required": ["total_budget"],
+                "properties": dict(_PLAN_INPUT_SCHEMA),
+                "required": list(_PLAN_REQUIRED),
                 "additionalProperties": False,
             },
         ),
@@ -80,12 +98,8 @@ def _build_catalog() -> dict[str, ToolSpec]:
             ),
             input_schema={
                 "type": "object",
-                "properties": {
-                    "objective": {"type": "string"},
-                    "total_budget": {"type": "number", "minimum": 1},
-                    **_SCOPE_SCHEMA,
-                },
-                "required": ["objective", "total_budget"],
+                "properties": dict(_PLAN_INPUT_SCHEMA),
+                "required": list(_PLAN_REQUIRED),
                 "additionalProperties": False,
             },
         ),
