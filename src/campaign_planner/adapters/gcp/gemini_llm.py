@@ -2,7 +2,7 @@
 
 Wraps the unified **Google GenAI SDK** (``google-genai``) against the **Gemini Enterprise
 Agent Platform** (Vertex backend). Reasoning/drafting uses ``gemini-3.5-flash``;
-triage/classification uses ``gemini-3.1-flash-lite`` (both pinned from settings; the
+triage/classification uses ``gemini-3.5-flash`` (both pinned from settings; the
 floating ADK default model is never used).
 
 In D2 the LLM only drafts the creative brief and narrates the plan summary over the already-
