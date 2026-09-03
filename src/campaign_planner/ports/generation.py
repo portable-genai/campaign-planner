@@ -1,7 +1,7 @@
 """LlmPort — LLM text/reasoning for drafting the creative brief and the plan summary.
 
 Primary GCP adapter: Gemini models on the Gemini Enterprise Agent Platform
-(``gemini-3.5-flash`` for drafting, ``gemini-3.1-flash-lite`` for triage). The LLM only
+(``gemini-3.5-flash`` for drafting, ``gemini-3.5-flash`` for triage). The LLM only
 drafts the creative brief and narrates the plan summary over the already-computed
 deterministic plan; it never decides the audience, the budget split, the reach numbers or
 the pacing.
