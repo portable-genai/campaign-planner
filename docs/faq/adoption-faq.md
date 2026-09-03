@@ -89,7 +89,7 @@ diverge, keep the hooks: they are the contract every stage reads.
 ### Does the CI run for my fork out of the box?
 
 Yes. CI and the eval gate run on the `local` profile with **no cloud credentials and no org
-secrets** (the hosted Cloud Build check sets `MKT_CAMPAIGN_PROFILE: local` and references no
+secrets** (the hosted GitHub Actions check sets `MKT_CAMPAIGN_PROFILE: local` and references no
 `secrets.`), so a fork's build is green immediately. You add secrets only when you wire the
 `gcp` / `platform` profiles. Note the eval gate measures the *reference* audience seed and
 golden plans until you rebuild them for your own vertical / market; that is an explicit
