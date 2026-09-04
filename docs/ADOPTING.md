@@ -103,9 +103,9 @@ too. The script deliberately does NOT touch the human decisions below.
 This repo is one system in a catalog of composable GRC systems. Several concerns it *touches*
 are owned by sibling platform services; integrate rather than rebuild them (see
 [`docs/faq/features-faq.md`](faq/features-faq.md) for the full map): the guardrail gateway
-(Hrz1), the agent registry (Hrz3), the AI-quality / eval gate (Hrz4), observability + WORM
-audit (Hrz5), the human-review console (Hrz7), and the marketing compliance / financial-
-promotions gate (Mkt6). The `platform` profile's adapters are already thin HTTP clients to
+(`agent-guardrail-gateway`), the agent registry (`agent-registry`), the AI-quality / eval gate (`model-quality-gate`), observability + WORM
+audit (`agent-observability`), the human-review console (`human-review-console`), and the marketing compliance / financial-
+promotions gate (`marketing-compliance-gate`). The `platform` profile's adapters are already thin HTTP clients to
 those services.
 
 ## 6. Adoption checklist

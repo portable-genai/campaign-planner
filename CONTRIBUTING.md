@@ -1,4 +1,4 @@
-# Contributing - Mkt2 Campaign Planner
+# Contributing - `campaign-planner` Campaign Planner
 
 ## The bar
 

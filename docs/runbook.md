@@ -1,6 +1,6 @@
-# Runbook: Mkt2 Campaign Planning and Budget-Allocation Assistant
+# Runbook: `campaign-planner` Campaign Planning and Budget-Allocation Assistant
 
-Operational notes for deploying and running Mkt2 on the Gemini Enterprise Agent Platform in a
+Operational notes for deploying and running `campaign-planner` on the Gemini Enterprise Agent Platform in a
 residency region (defaults `asia-southeast1`; JP and AU are per-market overrides). This is a
 reference build; adapt it to your own change-management and model-risk sign-off before any live
 use.

@@ -7,7 +7,7 @@ here. Read it first. This file carries only what is specific to this one.
 
 ## What this is
 
-Catalog id **Mkt2**. Campaign planning and budget allocation: deterministic segment selection,
+Catalog id `campaign-planner`. Campaign planning and budget allocation: deterministic segment selection,
 channel split, reach and frequency, and the pacing calendar, with the model drafting only the
 creative brief and the plan narrative.
 
@@ -15,7 +15,7 @@ creative brief and the plan narrative.
 
 | | |
 |---|---|
-| Catalog id | `Mkt2` |
+| Catalog id | `campaign-planner` |
 | Package | `src/campaign_planner/` |
 | Profile variable | `MKT_CAMPAIGN_PROFILE` |
 | Adapter families | `gcp`, `local`, `onprem`, `platform` |

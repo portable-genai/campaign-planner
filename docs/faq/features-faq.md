@@ -5,7 +5,7 @@ LLM, and, importantly, where its responsibilities **stop** and a sibling catalog
 takes over. Cross-references: [`README.md`](../../README.md), [`DEMO.md`](../../DEMO.md),
 [`ARCHITECTURE.md`](../../ARCHITECTURE.md).
 
-### What does Mkt2 actually produce?
+### What does `campaign-planner` actually produce?
 
 A cited **campaign plan**. From a campaign objective, a total budget, and a flight window it
 produces: an audience selection (which consent-gated segments to target and why), a
@@ -31,7 +31,7 @@ returns nothing.
 
 No. Every plan sets `requires_human_review=True` (maker-checker), and `ChannelMix`
 unconditionally requires review; **no spend is committed until a qualified approver signs
-off**. The escalation is not a per-repo boolean: it is routed to the **Hrz7** Human-Review
+off**. The escalation is not a per-repo boolean: it is routed to the `human-review-console` Human-Review
 and Maker-Checker Console through the shared `review-kit` client (dependency rule R8),
 with the descriptor, summary and citation snippets redacted before the wire and the verified
 actor threaded as maker. The agent proposes; a human disposes.
@@ -52,27 +52,27 @@ domain logic and its outputs. It **integrates** (via the `platform` profile's th
 adapters, or the `gcp` managed services) several cross-cutting concerns that are owned by
 sibling platform systems. Do not rebuild these in a fork:
 
-| Concern | Owned by (catalog id / repo) | Mkt2's role |
+| Concern | Owned by (catalog id / repo) | `campaign-planner`'s role |
 |---|---|---|
-| Runtime guardrail: prompt-injection / jailbreak defense, output screening | **Hrz1** `agent-guardrail-gateway` | consumes it at the model boundary (input + output screen) |
-| Governed RAG / ACL-aware knowledge base with citations | **Hrz2** `enterprise-knowledge-base` | not used by the shipped vertical (no brand-corpus retrieval); a fork that adds one integrates it |
-| Agent registry, versioning, identity, entitlements | **Hrz3** `agent-registry` | publishes its A2A agent card for discovery |
-| AI-quality / eval / model-risk promotion gate | **Hrz4** `model-quality-gate` | its eval metrics gate promotion; the offline gate mirrors it |
-| Observability + immutable WORM audit + FinOps | **Hrz5** `agent-observability` | writes audit events to it; traces spans (counts only, no content) through it |
-| Human review / maker-checker console | **Hrz7** `human-review-console` | routes every plan's review escalation to it (R8) |
-| Marketing compliance / financial-promotions claim check | **Mkt6** `marketing-compliance-gate` | the creative brief and any customer-facing claim are that system's job, not this one's |
+| Runtime guardrail: prompt-injection / jailbreak defense, output screening | `agent-guardrail-gateway` | consumes it at the model boundary (input + output screen) |
+| Governed RAG / ACL-aware knowledge base with citations | `enterprise-knowledge-base` | not used by the shipped vertical (no brand-corpus retrieval); a fork that adds one integrates it |
+| Agent registry, versioning, identity, entitlements | `agent-registry` | publishes its A2A agent card for discovery |
+| AI-quality / eval / model-risk promotion gate | `model-quality-gate` | its eval metrics gate promotion; the offline gate mirrors it |
+| Observability + immutable WORM audit + FinOps | `agent-observability` | writes audit events to it; traces spans (counts only, no content) through it |
+| Human review / maker-checker console | `human-review-console` | routes every plan's review escalation to it (R8) |
+| Marketing compliance / financial-promotions claim check | `marketing-compliance-gate` | the creative brief and any customer-facing claim are that system's job, not this one's |
 
 So the guardrail, audit sink, eval platform, review console and marketing-claim gate are
 *dependencies*, not features of this repo.
 
 ### How does this relate to the other marketing systems in the catalog?
 
-Mkt2 is the plan-build step: audience, budget split, reach / frequency, pacing. Adjacent Mkt
-systems handle different points and should not be duplicated here: **Mkt1** market
-intelligence & competitor analysis (inputs that inform strategy), **Mkt3** brand-safe
-creative & content studio (produces the creative assets a plan schedules), **Mkt4**
+`campaign-planner` is the plan-build step: audience, budget split, reach / frequency, pacing. Adjacent Mkt
+systems handle different points and should not be duplicated here: `market-intelligence` market
+intelligence & competitor analysis (inputs that inform strategy), `creative-studio` brand-safe
+creative & content studio (produces the creative assets a plan schedules), `performance-marketing-optimisation`
 stats-based performance marketing & attribution (measures what a live campaign delivered),
-**Mkt5** next-best-action recommendations & cross-sell, and **Mkt6** marketing compliance &
+`next-best-action` next-best-action recommendations & cross-sell, and `marketing-compliance-gate` marketing compliance &
 brand governance (the financial-promotions claim check). Check
 [the organization's repository index](https://github.com/portable-genai) before building a
 capability that may already have a home.

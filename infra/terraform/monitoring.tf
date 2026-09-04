@@ -32,7 +32,7 @@ resource "google_logging_metric" "guardrail_blocks" {
 
 resource "google_monitoring_alert_policy" "guardrail_blocks" {
   project      = var.project_id
-  display_name = "Mkt2 guardrail block detected"
+  display_name = "campaign-planner guardrail block detected"
   combiner     = "OR"
 
   conditions {
@@ -75,7 +75,7 @@ resource "google_logging_metric" "sa_key_creation" {
 
 resource "google_monitoring_alert_policy" "sa_key_creation" {
   project      = var.project_id
-  display_name = "Mkt2 service-account key creation attempted"
+  display_name = "campaign-planner service-account key creation attempted"
   combiner     = "OR"
 
   conditions {
@@ -118,7 +118,7 @@ resource "google_logging_metric" "vpc_sc_denials" {
 
 resource "google_monitoring_alert_policy" "vpc_sc_denials" {
   project      = var.project_id
-  display_name = "Mkt2 VPC-SC perimeter denial"
+  display_name = "campaign-planner VPC-SC perimeter denial"
   combiner     = "OR"
 
   conditions {

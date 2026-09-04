@@ -154,7 +154,7 @@ adapters:
     platform: campaign_planner.adapters.gcp.mcp_tool_catalog:McpToolCatalogAdapter
     local: campaign_planner.adapters.local.tool_catalog:LocalToolCatalogAdapter
     onprem: campaign_planner.adapters.onprem.tool_catalog:OnPremToolCatalogAdapter
-  # Rule R8: a plan sets requires_human_review, so it MUST be routed to the Hrz7 maker-checker
+  # Rule R8: a plan sets requires_human_review, so it MUST be routed to the human-review-console maker-checker
   # console via the shared review-kit, not left as a per-repo boolean. gcp/platform submit
   # over authenticated S2S; local enqueues to an in-memory outbox (offline demo/tests); onprem is
   # the fail-fast sovereign migration placeholder.

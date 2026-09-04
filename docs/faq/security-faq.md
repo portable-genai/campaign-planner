@@ -31,7 +31,7 @@ assertion; `onprem` is a client-IdP placeholder.
 
 ## What about outbound service-to-service calls?
 
-The one real outbound call today (the Hrz4 promotion-gate client) is built on the shared
+The one real outbound call today (the `model-quality-gate` promotion-gate client) is built on the shared
 `agent-eval-kit` `PromotionGateClient`, hardened through `adapters/platform/_s2s.py`, which
 delegates to `hex_service_kit.s2s`: it attaches an S2S bearer (`S2S_TOKEN`) and enforces
 an https-only base-URL guard. The other platform delegates are marshalling-phase stubs that
@@ -57,13 +57,13 @@ are public, pinned by git tag, and install with zero credentials. See D1 / D2 in
 Yes, within honest limits. `LocalAppendOnlyAuditAdapter` wraps
 `hex_service_kit.audit.HashChainedAuditLog`: a SHA-256 hash chain, `UPDATE` / `DELETE`
 triggers, JSONL export / restore, and `verify_chain()`. It is append-only and detects
-in-place edits and truncation; it is not a substitute for the managed WORM sink (Hrz5 /
+in-place edits and truncation; it is not a substitute for the managed WORM sink (`agent-observability` /
 locked Cloud Logging bucket) in production. Proven by `tests/unit/test_audit_chain.py`.
 
 ## What is explicitly out of scope for this repo?
 
-The guardrail / prompt-injection screening engine (Hrz1), the governed knowledge base
-(Hrz2), the agent registry (Hrz3), the AI-quality / eval gate (Hrz4), the WORM audit store
-(Hrz5), the human-review console (Hrz7), and the marketing compliance / claim-check gate
-(Mkt6). This repo integrates those through thin `platform` adapters rather than
+The guardrail / prompt-injection screening engine (`agent-guardrail-gateway`), the governed knowledge base
+(`enterprise-knowledge-base`), the agent registry (`agent-registry`), the AI-quality / eval gate (`model-quality-gate`), the WORM audit store
+(`agent-observability`), the human-review console (`human-review-console`), and the marketing compliance / claim-check gate
+(`marketing-compliance-gate`). This repo integrates those through thin `platform` adapters rather than
 re-implementing them. See [features-faq.md](features-faq.md) for the full boundary map.

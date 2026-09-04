@@ -10,7 +10,7 @@ control map and the regulator crosswalk appendix), [`SPEC.md`](../../SPEC.md),
 No. It is a **decision-support** agent: every plan sets `requires_human_review=True`
 (maker-checker), and the channel mix always requires review. The deterministic engines produce
 a documented, replayable plan; a qualified human disposes. The escalation is routed to the
-**Hrz7** Human-Review and Maker-Checker Console via the shared `review-kit` client
+`human-review-console` via the shared `review-kit` client
 (dependency rule R8), not resolved as a local boolean. **No budget is committed until an
 approver signs off.**
 
@@ -21,7 +21,7 @@ There is no customer PII in the request path, by design. Campaign planning runs 
 customer records or per-customer identifiers. So this repo has no redaction step (C3), no
 jurisdiction PII pack (C4), and no per-tenant customer store or ACL-scoped retrieval layer
 (C2). These are declared **omitted-by-design** in `ARCHITECTURE.md` §7 (SC-1, SC-4, SC-9),
-not silently skipped. The runtime guardrail / DLP itself is the sibling **Hrz1** gateway,
+not silently skipped. The runtime guardrail / DLP itself is the sibling `agent-guardrail-gateway`,
 which this repo consumes at the model boundary. If a fork adds a per-customer surface, it must
 add those controls back.
 
@@ -31,7 +31,7 @@ Every plan writes an immutable, already-screened WORM `AuditEvent` with the deci
 citation set. Every figure in the plan (audience selection, budget line, reach / frequency,
 pacing) carries a `Citation` back to the warehouse row or benchmark it came from. The
 consequential math is deterministic, so an auditor can recompute any allocation or reach
-figure from the same inputs. The enterprise WORM audit system is **Hrz5**; the in-repo
+figure from the same inputs. The enterprise WORM audit system is `agent-observability`; the in-repo
 hash-chained store (via `hex_service_kit.audit.HashChainedAuditLog`) is the offline / local
 stand-in (see [security-faq.md](security-faq.md) for its exact tamper-evidence limits).
 
@@ -41,7 +41,7 @@ An offline eval gate (`eval/run_eval.py`) scores groundedness and budget accurac
 golden set of plans, failing the build below threshold. The `--mode smoke|gate` split runs on
 the shared `agent-eval-kit` scaffold: smoke guards every merge offline, and gate mode
 (promotion) refuses to run outside `MKT_CAMPAIGN_PROFILE=platform|gcp`. The enterprise
-promotion gate and model documentation are the sibling **Hrz4** system; this repo's gate
+promotion gate and model documentation are the sibling `model-quality-gate` system; this repo's gate
 mirrors its thresholds and registers the bundle name `mkt2-campaign` (pinned by a respx
 contract test). A fork must rebuild the golden set for its own vertical / market, or the gate
 measures the wrong thing.
@@ -50,8 +50,8 @@ measures the wrong thing.
 
 Not this repo. The LLM here only drafts a creative brief and narrates the plan summary; any
 customer-facing claim, financial-promotion wording, or brand-safety review is the job of the
-sibling **Mkt6** Marketing Compliance & Brand Governance system (`marketing-compliance-gate`).
-Mkt2 produces the internal plan; Mkt6 is where a promotion's claims are checked before they go
+sibling `marketing-compliance-gate` Marketing Compliance & Brand Governance system (`marketing-compliance-gate`).
+`campaign-planner` produces the internal plan; `marketing-compliance-gate` is where a promotion's claims are checked before they go
 live. Do not rebuild that gate here.
 
 ### Which regulators does this map to?
@@ -60,7 +60,7 @@ live. Do not rebuild that gate here.
 code with an Evidence column naming real files, plus an **adopter-owned regulator crosswalk
 appendix**. To add a specific marketing / advertising-conduct regulator for JP, AU or SG,
 copy the appendix table, swap the regulator-reference column, and re-review with local
-counsel; the Mkt2-control column is stable across regulators. At scale, the sibling control
+counsel; the `campaign-planner`-control column is stable across regulators. At scale, the sibling control
 mapping and compliance-advisory toolkits generate and maintain these crosswalks rather than
 hand-maintaining the table.
 
@@ -86,7 +86,7 @@ live use.
 ### Which parts of the marketing lifecycle does it cover, and which not?
 
 It covers the plan-build step: audience selection, channel-mix budget allocation, reach /
-frequency, and pacing. Market intelligence (**Mkt1**), creative production (**Mkt3**),
-performance measurement / attribution (**Mkt4**), next-best-action (**Mkt5**), and the
-financial-promotions compliance gate (**Mkt6**) are adjacent catalog systems, not this repo's
+frequency, and pacing. Market intelligence (`market-intelligence`), creative production (`creative-studio`),
+performance measurement / attribution (`performance-marketing-optimisation`), next-best-action (`next-best-action`), and the
+financial-promotions compliance gate (`marketing-compliance-gate`) are adjacent catalog systems, not this repo's
 job. See [features-faq.md](features-faq.md) for the boundary.

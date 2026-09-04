@@ -63,5 +63,5 @@ commons provides so the JSON carries the computed figures); see
 
 Tamper-evidence and export-reload are scoped to what the local sink can prove;
 `portability_demo.py` says so explicitly rather than overclaiming. Production tamper-evidence
-is the managed WORM sink's job (Hrz5 / locked bucket), reached through the `platform` / `gcp`
+is the managed WORM sink's job (`agent-observability` / locked bucket), reached through the `platform` / `gcp`
 audit adapter.

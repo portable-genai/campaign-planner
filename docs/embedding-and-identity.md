@@ -1,6 +1,6 @@
-# Embedding and identity: client integration guide (Mkt2 campaign-planner)
+# Embedding and identity: client integration guide (`campaign-planner` campaign-planner)
 
-How to run the Mkt2 Campaign Planner standalone or embedded inside an existing client web
+How to run the `campaign-planner` Campaign Planner standalone or embedded inside an existing client web
 application, and how its server-verified identity works. Everything described here is
 implemented in this repository; the "Further layers" section at the end points at the
 reference repo for the designed extensions that are deliberately out of scope here.
@@ -193,7 +193,7 @@ an empty allowlist. Same-origin embedding needs no CORS at all.
   `Principal.actor` resolved by the active profile's `IdentityPort`
   (`api/security.py` builds a `RequestContext` from the request headers and maps
   `IdentityError` to HTTP 401).
-- **The Principal carries entitlement principals and a tenant.** Mkt2's audience queries
+- **The Principal carries entitlement principals and a tenant.** `campaign-planner`'s audience queries
   are market/vertical scoped and have no per-user ACL seam today, so `principals` is
   recorded for audit and reserved for future entitlement checks (the reference repo shows
   the pattern of merging them into governed-retrieval ACLs).

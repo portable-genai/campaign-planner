@@ -208,7 +208,10 @@ def act_4_identity() -> None:
 
 
 def main() -> int:
-    print("Mkt2 (campaign planner) portability tour: offline proof of the three portability")
+    print(
+        "campaign-planner (campaign planner) portability tour: offline proof of the three "
+        "portability"
+    )
     print("questions (experience/identity, compute, data). No Google Cloud, no API key.")
 
     act_1_profile_swap()

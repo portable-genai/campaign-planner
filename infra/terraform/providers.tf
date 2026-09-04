@@ -1,4 +1,4 @@
-# providers.tf - Provider pinning for the Mkt2 Campaign Planner sovereign deploy.
+# providers.tf - Provider pinning for the campaign-planner Campaign Planner sovereign deploy.
 #
 # Control map (this repo has no numbered principle ledger; controls map to the
 # documented posture in README.md / SPEC.md and the deploy-and-residency-hardening skill):
