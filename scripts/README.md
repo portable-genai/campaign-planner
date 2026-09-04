@@ -1,4 +1,4 @@
-# Demo scripts - Mkt2 Campaign Planning & Budget-Allocation Assistant
+# Demo scripts - `campaign-planner` Campaign Planning & Budget-Allocation Assistant
 
 All scripts are SDK-free and run against the in-process `local` stack (no Google Cloud, no
 API key). They drive the real `CampaignPlanService` over four synthetic (objective, market,

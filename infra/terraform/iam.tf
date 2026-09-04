@@ -1,4 +1,4 @@
-# iam.tf - Least-privilege service accounts for the Mkt2 workloads.
+# iam.tf - Least-privilege service accounts for the campaign-planner workloads.
 #
 # Control map:
 #   Least privilege / separation of duties: two distinct identities - the Cloud Run runtime
@@ -13,7 +13,7 @@
 # --------------------------- Cloud Run runtime ------------------------------ #
 resource "google_service_account" "runtime" {
   account_id   = "mkt-campaign-run"
-  display_name = "Mkt2 Campaign Planner - Cloud Run runtime (serving / API)"
+  display_name = "campaign-planner Campaign Planner - Cloud Run runtime (serving / API)"
   project      = var.project_id
 
   depends_on = [google_project_service.required]
@@ -53,7 +53,7 @@ resource "google_kms_crypto_key_iam_member" "runtime" {
 # least-privilege role set.
 resource "google_service_account" "agent_runtime" {
   account_id   = "mkt-campaign-agent"
-  display_name = "Mkt2 Agent Runtime (Gemini Enterprise Agent Platform)"
+  display_name = "campaign-planner Agent Runtime (Gemini Enterprise Agent Platform)"
   project      = var.project_id
 
   depends_on = [google_project_service.required]

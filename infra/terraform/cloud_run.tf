@@ -1,4 +1,4 @@
-# cloud_run.tf - Cloud Run v2 service for the Mkt2 FastAPI app.
+# cloud_run.tf - Cloud Run v2 service for the campaign-planner FastAPI app.
 #
 # Runs the container built from the repo Dockerfile (campaign_planner.api.app:app on port
 # 8101) as the dedicated least-privilege runtime identity (Workload Identity, no keys),

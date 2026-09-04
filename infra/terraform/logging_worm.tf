@@ -21,7 +21,7 @@ resource "google_logging_project_bucket_config" "worm_audit" {
   project        = var.project_id
   location       = var.region              # the selected region
   bucket_id      = "campaign-planner-worm" # matches settings.yaml logging.bucket
-  description    = "WORM audit bucket for Mkt2 campaign planner (locked, ~7y retention)."
+  description    = "WORM audit bucket for campaign-planner campaign planner (locked, ~7y retention)."
   retention_days = var.retention_days # 2557 (~7 years) by default
 
   # IRREVERSIBLE - see WARNING banner above. WORM compliance requires this true.

@@ -21,7 +21,7 @@ output "cmek_key" {
 
 # ------------------------------- Cloud Run ---------------------------------- #
 output "service_url" {
-  description = "Base URL of the Mkt2 Cloud Run service."
+  description = "Base URL of the campaign-planner Cloud Run service."
   value       = google_cloud_run_v2_service.campaign.uri
 }
 

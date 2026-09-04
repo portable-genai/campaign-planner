@@ -1,11 +1,11 @@
 """Shared conversion from an escalated campaign Plan to an ``review-kit`` Review payload.
 
-Lives in the adapter layer (not the pure domain) because it depends on the kit. Redacts the
-subject descriptor, summary and citation snippets before they leave the process (P-04 boundary),
-so no stray contact identifier reaches Hrz7 over the wire; Hrz7 redacts again before its own audit
-write (defense in depth). The maker (the agent/analyst that originated the plan) and the tenant are
-asserted here and trusted by Hrz7 because this is an authenticated S2S caller (per-hop OBO is the
-deferred next layer).
+Lives in the adapter layer (not the pure domain) because it depends on the kit. Redacts the subject
+descriptor, summary and citation snippets before they leave the process (P-04 boundary), so no stray
+contact identifier reaches human-review-console over the wire; human-review-console redacts again
+before its own audit write (defense in depth). The maker (the agent/analyst that originated the
+plan) and the tenant are asserted here and trusted by human-review-console because this is an
+authenticated S2S caller (per-hop OBO is the deferred next layer).
 
 Redaction note (deviation from the CDD / credit-memo templates): D2 is generic marketing over
 fictional audience-benchmark data and ships no PII-redaction port or shared ``pii-kit`` (the
@@ -73,7 +73,9 @@ def _plan_citations(plan: Plan) -> list[Citation]:
 
 
 def plan_to_review(plan: Plan, *, maker: str, tenant: str = "") -> Review:
-    """Build the review a producer submits to Hrz7 when a campaign plan escalates."""
+    """Build the review a producer submits to human-review-console when a
+    campaign plan escalates.
+    """
     descriptor = (
         f"Campaign plan for objective '{plan.objective}' in market {plan.market.value}, "
         f"vertical {plan.vertical.value}"

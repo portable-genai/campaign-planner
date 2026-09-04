@@ -89,7 +89,8 @@ class CampaignPlanService:
         self._allocation = allocation or BudgetAllocationService()
         self._reach = reach or ReachFrequencyService()
         self._pacing = pacing or PacingService()
-        # Optional (rule R8): when bound, an escalated plan is routed to the Hrz7 maker-checker
+        # Optional (rule R8): when bound, an escalated plan is routed to the human-review-console
+        # maker-checker
         # console after it is audited. A run with no router still audits ESCALATED; it just is
         # not forwarded to a console.
         self._review_router = review_router
@@ -160,7 +161,8 @@ class CampaignPlanService:
             )
             self._guard(summary, Direction.OUTPUT, actor)
             self._record(plan, actor)
-            # Rule R8: route the escalated, already-audited plan to the Hrz7 maker-checker console.
+            # Rule R8: route the escalated, already-audited plan to the human-review-console
+            # maker-checker console.
             # Routing is a hand-off, never fatal to an already-assembled, already-audited plan.
             if self._review_router is not None and plan.requires_human_review:
                 with contextlib.suppress(Exception):

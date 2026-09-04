@@ -1,6 +1,6 @@
-# Mkt2 Campaign Planner - thin console
+# `campaign-planner` Campaign Planner - thin console
 
-A small Next.js console over the Mkt2 FastAPI backend. It builds a cited campaign plan and
+A small Next.js console over the `campaign-planner` FastAPI backend. It builds a cited campaign plan and
 renders the audit-first view: selected audience, channel-mix budget allocation, reach /
 frequency, the pacing calendar, and the maker-checker review banner.
 

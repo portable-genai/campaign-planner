@@ -1,4 +1,4 @@
-# campaign-planner (Mkt2) - Campaign Planning and Budget Allocation
+# campaign-planner (`campaign-planner`) - Campaign Planning and Budget Allocation
 
 **Industries:** Retail & e-commerce, Banking, Consumer goods, Telecom, Travel & hospitality, Media
 
@@ -14,7 +14,7 @@ maker-checker gated (``requires_human_review=True``) before any budget is commit
 
 ## What it does
 
-Given an objective, a market, a vertical, a budget and a flight window, Mkt2:
+Given an objective, a market, a vertical, a budget and a flight window, `campaign-planner`:
 
 1. **selects the audience** - ranks candidate segments by a deterministic
    propensity x value x consent score and drops anyone who did not consent;
@@ -46,7 +46,7 @@ src/campaign_planner/
   config.py          Settings + Container (DI): dotted-path port -> adapter bindings
   api/  cli/         driving adapters: FastAPI (port 8101) + the `mkt-campaign` CLI
 config/settings.yaml profile -> {port: adapter}, region, model ids, knobs
-eval/run_eval.py     Hrz4 promotion gate over a synthetic golden set (thresholds)
+eval/run_eval.py     `model-quality-gate` promotion gate over a synthetic golden set (thresholds)
 ui/                  thin Next.js console
 ```
 

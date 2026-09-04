@@ -1,8 +1,8 @@
-"""Contract test: the platform evaluation adapter speaks the hardened Hrz4 gate protocol.
+"""Contract test: the platform evaluation adapter speaks the hardened model-quality-gate protocol.
 
 ``RemoteEvaluationAdapter`` (``EvaluationGatePort``) is a thin HTTP client for the shared
-Hrz4 AI-quality service. These tests pin the wire contract with ``respx`` (a dev dependency)
-against the agent-eval-kit ``PromotionGateClient``, which refuses thin evidence:
+model-quality-gate AI-quality service. These tests pin the wire contract with ``respx`` (a dev
+dependency) against the agent-eval-kit ``PromotionGateClient``, which refuses thin evidence:
 
 * ``POST /v1/evaluations`` carries a structured ``target`` and a top-level ``dataset_id``
   that equals ``target.dataset_id``, selects metrics only via ``bundle == "mkt2-campaign"``
@@ -105,7 +105,7 @@ def test_evaluate_posts_hrz4_contract_and_parses_results() -> None:
         "dataset_id": _DATASET_ID,
         "system": "",
     }
-    # Top-level dataset_id must equal target.dataset_id (Hrz4 422s on divergence).
+    # Top-level dataset_id must equal target.dataset_id (model-quality-gate 422s on divergence).
     assert sent["dataset_id"] == sent["target"]["dataset_id"] == _DATASET_ID
     # Metrics are selected ONLY by the bundle — never a metric-name list.
     assert sent["bundle"] == "mkt2-campaign"

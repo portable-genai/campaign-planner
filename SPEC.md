@@ -1,4 +1,4 @@
-# SPEC - Mkt2 Campaign Planning and Budget Allocation
+# SPEC - `campaign-planner` Campaign Planning and Budget Allocation
 
 ## Purpose
 
@@ -36,10 +36,10 @@ the JP / AU / SG markets.
 
 Each engine is pure: same inputs -> same output, no clock / randomness / network / I/O. The
 budget allocation and pacing reconcile to the requested total within a currency-rounding
-tolerance. These properties are pinned by unit tests and the Hrz4 eval gate
+tolerance. These properties are pinned by unit tests and the `model-quality-gate`
 (`budget_accuracy >= 0.99`).
 
-## Quality gate (Hrz4)
+## Quality gate (`model-quality-gate`)
 
 | Metric | Threshold | Meaning |
 | --- | --- | --- |
@@ -49,7 +49,7 @@ tolerance. These properties are pinned by unit tests and the Hrz4 eval gate
 | `review_safety` | 0.99 | Every plan requires human review |
 
 The `local` profile scores these thresholds offline via `eval/run_eval.py`. The `platform`
-profile is a real HTTP client to the Hrz4 AI-quality service (not a stub): it calls
+profile is a real HTTP client to the `model-quality-gate` AI-quality service (not a stub): it calls
 `POST /v1/evaluations` (returning `results[]`) and `POST /v1/gate` (the promotion decision),
 with the metric set selected server-side by the registered `mkt2-campaign` bundle, so the
 client never sends a metric-name list.

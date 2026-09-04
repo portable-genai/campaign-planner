@@ -1,4 +1,4 @@
-# Mkt2 Campaign Planner - demo guide
+# `campaign-planner` Campaign Planner - demo guide
 
 Two ways to demo: a **local (offline)** demo that needs no Google Cloud, and a **GCP**
 demo against the managed stack. Both are region-selectable and vertical-selectable.
@@ -103,7 +103,7 @@ console in a client portal and the secure (IAP) deployment.
 
 The `gcp` profile binds BigQuery (audience data), Gemini (drafting), Model Armor
 (guardrail), Cloud Logging WORM (audit), Cloud Trace (tracing), the Gen AI evaluation
-service (Hrz4 gate), an A2A registry and an MCP tool catalog. The residency region is resolved
+service (`model-quality-gate`), an A2A registry and an MCP tool catalog. The residency region is resolved
 from the selected market and validated (JP -> `asia-northeast1`, AU ->
 `australia-southeast1`, SG -> `asia-southeast1`).
 
@@ -116,7 +116,7 @@ gcloud auth application-default login
 MKT_CAMPAIGN_PROFILE=gcp MKT_MARKET=SG MKT_VERTICAL=banking \
   mkt-campaign "savings account acquisition" -m SG -v banking -b 120000
 
-# The production Hrz4 evaluation gate (Gen AI evaluation service):
+# The production `model-quality-gate` (Gen AI evaluation service):
 MKT_CAMPAIGN_PROFILE=gcp python eval/run_eval.py --use-gcp
 ```
 

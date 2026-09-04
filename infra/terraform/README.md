@@ -1,6 +1,6 @@
-# Mkt2 Campaign Planner: Terraform (Singapore-resident, sovereign deploy)
+# `campaign-planner` Campaign Planner: Terraform (Singapore-resident, sovereign deploy)
 
-This module provisions the **Singapore-resident** managed stack for the Mkt2 Campaign
+This module provisions the **Singapore-resident** managed stack for the `campaign-planner` Campaign
 Planning and Budget Allocation service. The region is **selected at deploy time** and
 validated against the residency allowlist `allowed_regions`; it defaults to
 `asia-southeast1` (Singapore) and every resource follows `var.region`. Only `project_id`,

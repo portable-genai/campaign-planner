@@ -1,4 +1,4 @@
-# apis.tf - Enable exactly the managed services Mkt2 depends on, nothing speculative.
+# apis.tf - Enable exactly the managed services campaign-planner depends on, nothing speculative.
 #
 # Control map:
 #   Managed-first / minimal surface: only services the pinned gcp adapters actually call
