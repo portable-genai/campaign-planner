@@ -298,6 +298,7 @@ class LocalSettings:
 
     audit_path: str = ""  # append-only audit store
     seed_path: str = ""  # audience-data seed JSON ("" => bundled fictional seed)
+    book_path: str = ""  # DuckDB audience warehouse; "" => ~/.campaign_planner/book.duckdb
 
 
 @dataclass(frozen=True)

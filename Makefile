@@ -8,6 +8,8 @@ PY ?= python3.14
 VENV ?= .venv
 BIN := $(VENV)/bin
 PROFILE ?= local
+PROJECT ?= $(GOOGLE_CLOUD_PROJECT)
+TENANT  ?= demo-bank   # a deployment's is its own; never this
 
 API_APP := campaign_planner.api.app:app
 API_HOST ?= 127.0.0.1  # no-auth local dev binds loopback; override deliberately
@@ -23,7 +25,7 @@ export MKT_CAMPAIGN_PROFILE := $(PROFILE)
 # so they are gate-relevant code, not scratch scripts.
 DEMO_SCRIPTS := scripts/render_plan_ui.py scripts/demo_selftest.py
 
-.PHONY: venv install install-demo install-gcp lock lint format typecheck test eval gate \
+.PHONY: demo-book-dry-run load-demo-book venv install install-demo install-gcp lock lint format typecheck test eval gate \
         ui-install ui-check portability \
         demo demo-server demo-selftest demo-browser smoke-local run-api run-ui \
         tf-validate tf-plan clean
@@ -46,10 +48,10 @@ lock: ## Recompile every lockfile from pyproject.toml and restore the tag = comm
 	$(BIN)/python scripts/lock.py
 
 lint:
-	$(BIN)/ruff check src tests eval $(DEMO_SCRIPTS)
+	$(BIN)/ruff check src tests scripts/load_demo_book.py eval $(DEMO_SCRIPTS)
 
 format:
-	$(BIN)/ruff format --check src tests eval $(DEMO_SCRIPTS)
+	$(BIN)/ruff format --check src tests scripts/load_demo_book.py eval $(DEMO_SCRIPTS)
 
 typecheck:
 	$(BIN)/mypy src
@@ -108,6 +110,12 @@ tf-plan: ## Terraform plan for the Singapore-resident managed stack (infra/terra
 
 tf-validate:
 	cd $(TF_DIR) && terraform fmt -check -recursive && terraform init -backend=false -input=false && terraform validate
+
+demo-book-dry-run: ## Write the NDJSON the loader WOULD send to BigQuery, and stop.
+	$(BIN)/python scripts/load_demo_book.py --tenant $(TENANT) --dry-run build/demo-book
+
+load-demo-book: ## Load the fictional audience warehouse into a deployment's dataset (needs TENANT).
+	$(BIN)/python scripts/load_demo_book.py --project $(PROJECT) --tenant $(TENANT)
 
 clean:
 	rm -rf $(VENV) .pytest_cache .ruff_cache .mypy_cache

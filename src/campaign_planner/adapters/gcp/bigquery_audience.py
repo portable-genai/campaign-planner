@@ -37,6 +37,37 @@ if TYPE_CHECKING:  # pragma: no cover - typing only, never imported at runtime
     from google.cloud import bigquery
 
 
+#: The columns this adapter selects, per the settings key naming the table it selects from.
+#: Declared here so a contract test can hold them against ``infra/terraform/bigquery.tf``.
+#: That test exists because this repository had NO bigquery.tf at all: the API was enabled,
+#: the IAM roles were granted and the CMEK binding was in place, every one of them naming a
+#: dataset nothing created. The managed profile would have failed at the first request.
+SELECTED_COLUMNS: dict[str, tuple[str, ...]] = {
+    "segments_table": (
+        "id",
+        "name",
+        "size",
+        "reachable_size",
+        "propensity",
+        "expected_value",
+        "consent_rate",
+        "tags",
+        "market",
+        "vertical",
+    ),
+    "benchmarks_table": (
+        "channel",
+        "cpm",
+        "ctr",
+        "conversion_rate",
+        "max_reach",
+        "min_spend",
+        "market",
+        "vertical",
+    ),
+}
+
+
 class BigQueryAudienceDataAdapter:
     """Read audience segments and channel benchmarks from BigQuery."""
 
