@@ -68,6 +68,25 @@ resource name in `settings.agent_engine.resource_name` (or `MKT_AGENT_ENGINE`). 
 out-of-process governed MCP tool server, set `MKT_CAMPAIGN_MCP_SERVER_URL`; unset, the agent
 uses its in-process FunctionTools.
 
+## Loading the audience warehouse
+
+The `gcp` profile reads audience segments and channel benchmarks from the
+`mkt_campaign_audience` BigQuery dataset.
+
+**Apply `infra/terraform/bigquery.tf` first, and note that it is new.** This repository had
+no BigQuery Terraform at all: the API was enabled, the IAM roles were granted and the CMEK
+binding was in place, every one of them naming a dataset and two tables that nothing created.
+A managed deployment before this change would have failed at the first request with a
+not-found.
+
+```bash
+make demo-book-dry-run TENANT=<name>          # writes build/demo-book/*.ndjson, loads nothing
+make load-demo-book PROJECT=<id> TENANT=<name>
+```
+
+**The loader truncates, so it refuses a book it did not write.** It proceeds only when the
+target tables are empty or `book_manifest` says what they hold is fictional.
+
 ## 3. Region selection and fail-fast
 
 The Terraform `region` is validated against the residency allowlist; an apply against a region
