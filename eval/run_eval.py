@@ -38,13 +38,19 @@ import sys
 from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
+from typing import Any
 
 # Domain models / config are pure-stdlib + the local adapters are SDK-free, so this script
 # runs in the local / on-prem / test profile with no Google Cloud SDK installed.
 # The --mode smoke|gate scaffold + aligned report rendering come from the shared
 # agent-eval-kit commons; this script keeps only its own offline
 # evaluator and gate runner.
-from agent_eval_kit import eval_main
+from agent_eval_kit import (
+    assert_denominator_supports,
+    dataset_digest,
+    eval_main,
+    load_rubrics,
+)
 
 from campaign_planner.domain.models import (
     EvalMetricResult,
@@ -56,14 +62,23 @@ from campaign_planner.domain.models import (
     Vertical,
 )
 
-THRESHOLDS: dict[str, float] = {
-    "plan_groundedness": 0.80,
-    "citation_accuracy": 0.90,
-    "budget_accuracy": 0.99,
-    "review_safety": 0.99,
-}
+#: Where every bar lives. Not a dict here: a threshold written as a Python literal carries no
+#: argument. The rubric files carry the reasoning beside the number, and
+#: `agent_eval_kit.load_rubrics` reads them. What was here before was BOTH a dict and a loader
+#: that overlaid two rubric files on top of it, falling back to the dict when PyYAML was missing.
+
+#: The metrics this runner scores, in report order. Named so `assert_covers` can compare them
+#: with the rubric set in BOTH directions.
+SCORED: tuple[str, ...] = (
+    "plan_groundedness",
+    "citation_accuracy",
+    "budget_accuracy",
+    "allocation_correctness",
+    "review_safety",
+)
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
+RUBRICS = _REPO_ROOT / "eval" / "rubrics"
 DEFAULT_DATASET = _REPO_ROOT / "eval" / "datasets" / "golden_plans.jsonl"
 _START = date(2026, 7, 1)
 _END = date(2026, 7, 28)
@@ -109,25 +124,50 @@ def load_golden(path: Path) -> list[GoldenExample]:
 
 
 def load_thresholds_from_rubrics() -> dict[str, float]:
-    """Read thresholds from ``eval/rubrics/*.yaml`` when PyYAML is available."""
-    thresholds = dict(THRESHOLDS)
-    try:
-        import yaml  # type: ignore[import-untyped]
-    except ImportError:
-        return thresholds
-    rubric_dir = _REPO_ROOT / "eval" / "rubrics"
-    for name in ("groundedness.yaml", "budget_accuracy.yaml"):
-        rubric_path = rubric_dir / name
-        if not rubric_path.exists():
-            continue
-        doc = yaml.safe_load(rubric_path.read_text(encoding="utf-8")) or {}
-        metric = doc.get("metric")
-        if isinstance(metric, str) and "threshold" in doc:
-            thresholds[metric] = float(doc["threshold"])
-        for companion, spec in (doc.get("companion_metrics") or {}).items():
-            if isinstance(spec, dict) and "threshold" in spec:
-                thresholds[str(companion)] = float(spec["threshold"])
-    return thresholds
+    """Read every metric's reviewed bar out of ``eval/rubrics/*.yaml``. No fallback, by design."""
+    return load_rubrics(RUBRICS).thresholds()
+
+
+def benchmarked_channels() -> dict[tuple[str, str], set[str]]:
+    """Per (market, vertical), the channels the SHIPPED demo book publishes a benchmark for.
+
+    This is the independent oracle `allocation_correctness` needs, and it is the shipped book
+    rather than a list restated here: the channels the gate measures against are the channels
+    the demo prices, so a book edit moves both together and cannot silently move only one.
+    """
+    from campaign_planner import demo_book
+
+    by_market: dict[tuple[str, str], set[str]] = {}
+    for row in demo_book.BOOK.rows("channel_benchmarks"):
+        key = (str(row["market"]), str(row["vertical"]))
+        by_market.setdefault(key, set()).add(str(row["channel"]))
+    return by_market
+
+
+def score_allocation_correctness(plan: Any, example: Any, benchmarks: dict) -> float:
+    """Did the budget land on channels this market and vertical are actually priced for?
+
+    `budget_accuracy` reconciles totals: it asks whether the allocation and the pacing add up to
+    the budget. They add up to the budget however the money is split, so a plan that put the
+    whole budget on one channel, or on a channel nobody published a cost for, scores a perfect
+    1.000 there. That is arithmetic closure, and it is not allocation correctness.
+
+    Two things are scored here, equally weighted, and they fail in opposite directions:
+
+    * every channel carrying spend is one the demo book publishes a benchmark for in THIS
+      market and vertical. Spend on an unpriced channel is spend nobody can cost;
+    * the mix draws on more than one of them. A single-channel plan is not a mix, and it is
+      what a cost-minimising allocator produces when nothing stops it.
+    """
+    priced = benchmarks.get((example.market, example.vertical), set())
+    allocated = {
+        line.channel.value for line in plan.channel_mix.lines if getattr(line, "amount", 0) > 0
+    }
+    if not allocated:
+        return 0.0
+    on_priced = len(allocated & priced) / len(allocated)
+    diversified = 1.0 if len(allocated & priced) > 1 else 0.0
+    return round((on_priced + diversified) / 2.0, 4)
 
 
 # --------------------------------------------------------------------------- #
@@ -203,9 +243,13 @@ class _PerMetric:
 
 
 def run_offline(dataset: Path, thresholds: dict[str, float]) -> EvalReport:
+    # The rubrics and the scored set must agree in BOTH directions before anything is scored.
+    load_rubrics(RUBRICS).assert_covers(SCORED)
     examples = load_golden(dataset)
     service = _make_service()
-    agg: dict[str, _PerMetric] = {m: _PerMetric() for m in THRESHOLDS}
+    agg: dict[str, _PerMetric] = {metric: _PerMetric() for metric in SCORED}
+    benchmarks = benchmarked_channels()
+    produced: dict[str, int] = {"citations": 0}
     print(f"Running offline eval gate over {len(examples)} golden plans (CampaignPlanService).\n")
     for ex in examples:
         request = PlanRequest(
@@ -221,19 +265,33 @@ def run_offline(dataset: Path, thresholds: dict[str, float]) -> EvalReport:
         agg["plan_groundedness"].scores.append(score_groundedness(plan))
         agg["citation_accuracy"].scores.append(score_citation_accuracy(plan))
         agg["budget_accuracy"].scores.append(score_budget_accuracy(plan))
+        agg["allocation_correctness"].scores.append(
+            score_allocation_correctness(plan, ex, benchmarks)
+        )
         agg["review_safety"].scores.append(score_review_safety(plan))
+        produced["citations"] += len(plan.citations)
 
-    order = ("plan_groundedness", "citation_accuracy", "budget_accuracy", "review_safety")
     results = tuple(
         EvalMetricResult(
             metric=metric,
             score=round(agg[metric].mean, 4),
-            threshold=thresholds.get(metric, THRESHOLDS[metric]),
-            passed=round(agg[metric].mean, 4) >= thresholds.get(metric, THRESHOLDS[metric]),
+            threshold=thresholds[metric],
+            passed=round(agg[metric].mean, 4) >= thresholds[metric],
         )
-        for metric in order
+        for metric in SCORED
     )
-    return EvalReport(dataset=str(dataset), results=results, n_examples=len(examples))
+    # The corpus must be able to express every bar that claims a rate. citation_accuracy is the
+    # only one here, and its denominator is the citations the plans carry, not the plan count.
+    assert_denominator_supports(
+        thresholds["citation_accuracy"], produced["citations"], metric="citation_accuracy"
+    )
+    return EvalReport(
+        dataset=str(dataset),
+        results=results,
+        n_examples=len(examples),
+        dataset_digest=dataset_digest(dataset),
+        evaluator="offline heuristic (no cloud creds)",
+    )
 
 
 def run_gate(dataset: Path) -> tuple[EvalReport, bool]:

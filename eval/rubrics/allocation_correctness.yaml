@@ -1,0 +1,43 @@
+# Scored by: eval/run_eval.py::score_allocation_correctness against the SHIPPED demo book's
+# channel benchmarks, per market and vertical. The oracle is the book rather than a list restated
+# in the eval, so the channels the gate measures against are the channels the demo prices, and a
+# book edit moves both together instead of moving only one.
+#
+# Why this metric exists beside budget_accuracy. That one reconciles totals: it asks whether the
+# allocation and the pacing add up to the budget. They add up to the budget however the money is
+# split, so a plan that put the whole budget on one channel, or on a channel nobody published a
+# cost for, scores a perfect 1.000 there. That is arithmetic closure, and it is not allocation
+# correctness. The claim a media planner cares about is not "the numbers add up".
+#
+# Two halves, equally weighted, failing in opposite directions:
+#
+#   on_priced     every channel carrying spend is one the book prices for THIS market and
+#                 vertical. Spend on an unpriced channel is spend nobody can cost, and it is
+#                 what an allocator produces when a channel list drifts from the benchmark table.
+#   diversified   the mix draws on more than one priced channel. A single-channel plan is not a
+#                 mix, and it is exactly what a cost-minimising allocator produces when nothing
+#                 stops it: the cheapest CPM takes everything.
+metric: allocation_correctness
+description: >
+  The budget lands on channels the demo book prices for this market and vertical, and on more
+  than one of them.
+threshold: 1.0
+direction: maximize
+applies_to:
+  - Plan.channel_mix.lines
+criteria:
+  - id: on_priced_channels
+    description: Every channel carrying spend has a published benchmark for this market/vertical.
+    weight: 0.5
+  - id: diversified
+    description: More than one priced channel carries spend.
+    weight: 0.5
+scoring:
+  scale: [0.0, 1.0]
+  pass_if: "score >= threshold"
+denominator:
+  # 1.0 rather than a rate, and the two halves are why: at 0.5 a plan could satisfy one and fail
+  # the other and still pass, and both failure modes are ones a media planner would reject
+  # outright. Neither is a matter of degree.
+  kind: all-or-nothing
+  over: one allocation per golden plan
