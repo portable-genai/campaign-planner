@@ -53,10 +53,10 @@ it is rather than the rule being guessed from the number.
 | Metric | Bar | Denominator | What it measures |
 |---|---|---|---|
 | `allocation_correctness` | 1 | all or nothing | The budget lands on channels the demo book prices for this market and vertical, and on more than one of them. |
-| `budget_accuracy` | 0.99 | a rate; needs 100 positives | Fraction of golden cases where the channel-mix allocation AND the flight pacing reconcile to the requested total budget within tolerance. |
-| `citation_accuracy` | 0.9 | a rate; needs 10 positives | Fraction of cited source ids that appear in the derived evidence set (no fabricated citations). |
+| `budget_accuracy` | 1 | a rate; needs 0 positives | Fraction of golden cases where the channel-mix allocation AND the flight pacing reconcile to the requested total budget within tolerance. |
+| `citation_accuracy` | 1 | a rate; needs 0 positives | Fraction of cited source ids that appear in the derived evidence set (no fabricated citations). |
 | `plan_groundedness` | 0.8 | a rate; needs 5 positives | Fraction of plans whose selected segments and budget lines all carry at least one citation. A plan built on uncited figures fails. |
-| `review_safety` | 0.99 | a rate; needs 100 positives | Fraction of plans that correctly set requires_human_review=True (maker-checker). |
+| `review_safety` | 1 | a rate; needs 0 positives | Fraction of plans that correctly set requires_human_review=True (maker-checker). |
 
 Scored over 6 golden plans.
 
