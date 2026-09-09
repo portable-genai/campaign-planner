@@ -14,8 +14,8 @@ from datetime import date
 import pytest
 from agent_eval_kit import assert_can_go_red
 from eval.run_eval import (
-    THRESHOLDS,
     _make_service,
+    load_thresholds_from_rubrics,
     score_budget_accuracy,
     score_citation_accuracy,
     score_groundedness,
@@ -23,6 +23,10 @@ from eval.run_eval import (
 )
 
 from campaign_planner.domain.models import Market, Plan, PlanRequest, Vertical
+
+#: The reviewed bars, read from `eval/rubrics/*.yaml` exactly as the gate reads them. The
+#: module-level dict this used to import is gone: having both was two homes for one number.
+THRESHOLDS = load_thresholds_from_rubrics()
 
 _ACTOR = "eval@bank.example"
 
@@ -82,3 +86,47 @@ def test_review_safety_can_go_red(plan: Plan) -> None:
         threshold=THRESHOLDS["review_safety"],
         metric="review_safety",
     )
+
+
+def test_allocation_correctness_can_go_red_in_both_directions(plan: Plan) -> None:
+    """Spend on an unpriced channel, and a single-channel plan, are different failures.
+
+    budget_accuracy cannot see either: totals reconcile however the money is split. A one-sided
+    proof would certify whichever half it did not exercise.
+    """
+    from dataclasses import replace as _replace
+    from types import SimpleNamespace
+
+    from eval.run_eval import benchmarked_channels, score_allocation_correctness
+
+    benchmarks = benchmarked_channels()
+    # The golden case this plan corresponds to, as the runner's loader would present it.
+    example = SimpleNamespace(market="SG", vertical="banking")
+    priced = benchmarks[("SG", "banking")]
+    assert score_allocation_correctness(plan, example, benchmarks) == 1.0
+
+    # One channel only: the mix a cost-minimising allocator produces when nothing stops it.
+    single = _replace(
+        plan,
+        channel_mix=_replace(plan.channel_mix, lines=(plan.channel_mix.lines[0],)),
+    )
+    assert score_allocation_correctness(single, example, benchmarks) < 1.0
+
+    # A channel nobody published a cost for: the eval's own benchmark table, minus one channel
+    # the plan actually used, which is the shape of a benchmark table drifting from the mix.
+    drifted = dict(benchmarks)
+    drifted[(example.market, example.vertical)] = set(list(priced)[:-1]) - {
+        plan.channel_mix.lines[0].channel.value
+    }
+    assert score_allocation_correctness(plan, example, drifted) < 1.0
+
+
+def test_every_scored_metric_has_a_reviewed_bar_and_every_bar_is_scored() -> None:
+    """Both directions. The second is the one nobody writes by hand, and the one that rots."""
+    from agent_eval_kit import load_rubrics
+    from agent_eval_kit.rubrics import RubricError
+    from eval.run_eval import RUBRICS, SCORED
+
+    load_rubrics(RUBRICS).assert_covers(SCORED)
+    with pytest.raises(RubricError, match="reads as governance"):
+        load_rubrics(RUBRICS).assert_covers(SCORED[:-1])
