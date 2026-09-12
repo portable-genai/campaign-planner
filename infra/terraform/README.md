@@ -54,6 +54,10 @@ Services this repo never calls are not enabled.
   outside the region actually deployed to (defence in depth).
 - One regional CMEK key, bound per service (no project-wide grant); a global / multi-region
   key would not give residency.
+- Every `google_bigquery_table` names that key itself rather than inheriting it from the
+  dataset. BigQuery stamps the dataset's `default_encryption_configuration` onto each table it
+  creates, so a table resource declaring no `encryption_configuration` reads as a key REMOVAL at
+  the next plan, and removing one REPLACES the table, which destroys every row it holds.
 - VPC-SC perimeter confines the AI / data APIs; dry-run first, enforce only after a clean run.
 - The audit log lands in a locked (WORM) bucket with ~7-year retention; the app redacts
   before it logs, the infra makes the records immutable.
