@@ -15,6 +15,7 @@
 # Counts Model Armor guardrail blocks emitted into this app's audit log. The guardrail
 # adapter records a blocked INPUT / OUTPUT decision in the campaign-planner-audit log.
 resource "google_logging_metric" "guardrail_blocks" {
+  count   = var.posture_alerts_enabled ? 1 : 0
   project = var.project_id
   name    = "mkt_campaign_guardrail_blocks"
 
@@ -31,6 +32,7 @@ resource "google_logging_metric" "guardrail_blocks" {
 }
 
 resource "google_monitoring_alert_policy" "guardrail_blocks" {
+  count        = var.posture_alerts_enabled ? 1 : 0
   project      = var.project_id
   display_name = "campaign-planner guardrail block detected"
   combiner     = "OR"
@@ -38,7 +40,7 @@ resource "google_monitoring_alert_policy" "guardrail_blocks" {
   conditions {
     display_name = "Guardrail block count > 0"
     condition_threshold {
-      filter          = "metric.type=\"logging.googleapis.com/user/${google_logging_metric.guardrail_blocks.name}\" AND resource.type=\"global\""
+      filter          = "metric.type=\"logging.googleapis.com/user/${google_logging_metric.guardrail_blocks[0].name}\" AND resource.type=\"global\""
       comparison      = "COMPARISON_GT"
       threshold_value = 0
       duration        = "0s"
@@ -58,6 +60,7 @@ resource "google_monitoring_alert_policy" "guardrail_blocks" {
 # org_policy.tf denies SA-key creation; this alerts if a creation is even attempted /
 # slips through, captured from the Cloud Audit Log.
 resource "google_logging_metric" "sa_key_creation" {
+  count   = var.posture_alerts_enabled ? 1 : 0
   project = var.project_id
   name    = "mkt_campaign_sa_key_creation"
 
@@ -74,6 +77,7 @@ resource "google_logging_metric" "sa_key_creation" {
 }
 
 resource "google_monitoring_alert_policy" "sa_key_creation" {
+  count        = var.posture_alerts_enabled ? 1 : 0
   project      = var.project_id
   display_name = "campaign-planner service-account key creation attempted"
   combiner     = "OR"
@@ -81,7 +85,7 @@ resource "google_monitoring_alert_policy" "sa_key_creation" {
   conditions {
     display_name = "SA key creation count > 0"
     condition_threshold {
-      filter          = "metric.type=\"logging.googleapis.com/user/${google_logging_metric.sa_key_creation.name}\" AND resource.type=\"global\""
+      filter          = "metric.type=\"logging.googleapis.com/user/${google_logging_metric.sa_key_creation[0].name}\" AND resource.type=\"global\""
       comparison      = "COMPARISON_GT"
       threshold_value = 0
       duration        = "0s"
@@ -101,6 +105,7 @@ resource "google_monitoring_alert_policy" "sa_key_creation" {
 # Fires when a request is denied by the VPC Service Controls perimeter (attempted access
 # across the residency boundary).
 resource "google_logging_metric" "vpc_sc_denials" {
+  count   = var.posture_alerts_enabled ? 1 : 0
   project = var.project_id
   name    = "mkt_campaign_vpc_sc_denials"
 
@@ -117,6 +122,7 @@ resource "google_logging_metric" "vpc_sc_denials" {
 }
 
 resource "google_monitoring_alert_policy" "vpc_sc_denials" {
+  count        = var.posture_alerts_enabled ? 1 : 0
   project      = var.project_id
   display_name = "campaign-planner VPC-SC perimeter denial"
   combiner     = "OR"
@@ -124,7 +130,7 @@ resource "google_monitoring_alert_policy" "vpc_sc_denials" {
   conditions {
     display_name = "VPC-SC denial count > 0"
     condition_threshold {
-      filter          = "metric.type=\"logging.googleapis.com/user/${google_logging_metric.vpc_sc_denials.name}\" AND resource.type=\"global\""
+      filter          = "metric.type=\"logging.googleapis.com/user/${google_logging_metric.vpc_sc_denials[0].name}\" AND resource.type=\"global\""
       comparison      = "COMPARISON_GT"
       threshold_value = 0
       duration        = "0s"
