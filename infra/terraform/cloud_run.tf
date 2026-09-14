@@ -23,7 +23,7 @@ resource "google_cloud_run_v2_service" "campaign" {
 
   template {
     # Encrypt the revision with the regional CMEK key.
-    encryption_key                   = google_kms_crypto_key.campaign.id
+    encryption_key                   = one(google_kms_crypto_key.campaign[*].id)
     service_account                  = google_service_account.runtime.email
     max_instance_request_concurrency = 80
 

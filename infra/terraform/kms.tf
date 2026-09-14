@@ -10,6 +10,7 @@
 #              in-country.
 
 resource "google_kms_key_ring" "campaign" {
+  count    = var.cmek_enabled ? 1 : 0
   name     = "campaign-planner"
   location = var.region # the selected region - regional, in-country key material
 
@@ -17,8 +18,9 @@ resource "google_kms_key_ring" "campaign" {
 }
 
 resource "google_kms_crypto_key" "campaign" {
+  count    = var.cmek_enabled ? 1 : 0
   name     = "campaign-cmek"
-  key_ring = google_kms_key_ring.campaign.id
+  key_ring = one(google_kms_key_ring.campaign[*].id)
 
   purpose         = "ENCRYPT_DECRYPT"
   rotation_period = "7776000s" # 90 days - periodic rotation for key hygiene
@@ -44,35 +46,40 @@ data "google_project" "this" {
 
 # Cloud Logging service agent (CMEK on the WORM audit bucket).
 resource "google_kms_crypto_key_iam_member" "logging" {
-  crypto_key_id = google_kms_crypto_key.campaign.id
+  count         = var.cmek_enabled ? 1 : 0
+  crypto_key_id = one(google_kms_crypto_key.campaign[*].id)
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
   member        = "serviceAccount:service-${data.google_project.this.number}@gcp-sa-logging.iam.gserviceaccount.com"
 }
 
 # Vertex AI / Agent Platform service agent (CMEK on reasoning + eval + runtime state).
 resource "google_kms_crypto_key_iam_member" "aiplatform" {
-  crypto_key_id = google_kms_crypto_key.campaign.id
+  count         = var.cmek_enabled ? 1 : 0
+  crypto_key_id = one(google_kms_crypto_key.campaign[*].id)
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
   member        = "serviceAccount:service-${data.google_project.this.number}@gcp-sa-aiplatform.iam.gserviceaccount.com"
 }
 
 # BigQuery service agent (CMEK on the audience-warehouse dataset / tables).
 resource "google_kms_crypto_key_iam_member" "bigquery" {
-  crypto_key_id = google_kms_crypto_key.campaign.id
+  count         = var.cmek_enabled ? 1 : 0
+  crypto_key_id = one(google_kms_crypto_key.campaign[*].id)
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
   member        = "serviceAccount:bq-${data.google_project.this.number}@bigquery-encryption.iam.gserviceaccount.com"
 }
 
 # Cloud Run service agent (encrypts the service revision with CMEK).
 resource "google_kms_crypto_key_iam_member" "run" {
-  crypto_key_id = google_kms_crypto_key.campaign.id
+  count         = var.cmek_enabled ? 1 : 0
+  crypto_key_id = one(google_kms_crypto_key.campaign[*].id)
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
   member        = "serviceAccount:service-${data.google_project.this.number}@serverless-robot-prod.iam.gserviceaccount.com"
 }
 
 # Cloud Storage service agent (CMEK on the agent-runtime staging bucket).
 resource "google_kms_crypto_key_iam_member" "storage" {
-  crypto_key_id = google_kms_crypto_key.campaign.id
+  count         = var.cmek_enabled ? 1 : 0
+  crypto_key_id = one(google_kms_crypto_key.campaign[*].id)
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
   member        = "serviceAccount:service-${data.google_project.this.number}@gs-project-accounts.iam.gserviceaccount.com"
 }
