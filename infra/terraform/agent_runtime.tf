@@ -19,8 +19,11 @@ resource "google_storage_bucket" "agent_staging" {
   uniform_bucket_level_access = true
   public_access_prevention    = "enforced"
 
-  encryption {
-    default_kms_key_name = google_kms_crypto_key.campaign.id
+  dynamic "encryption" {
+    for_each = var.cmek_enabled ? [1] : []
+    content {
+      default_kms_key_name = one(google_kms_crypto_key.campaign[*].id)
+    }
   }
 
   # Keep a few prior staged versions; expire them so the bucket does not grow unbounded.
