@@ -23,7 +23,7 @@ principle ledger, so each file's header maps its control to the documented postu
 | `org_policy.tf` | `gcp.resourceLocations` allowlist (derived from `var.region`), disable SA-key creation, no external IPs, uniform bucket access. |
 | `kms.tf` | One regional CMEK key + a per-service IAM binding (logging, Vertex AI, BigQuery, Cloud Run, Storage). |
 | `vpc_sc.tf` | Service perimeter around the AI / data APIs. `vpc_sc_dry_run = true` first. |
-| `logging_worm.tf` | Locked (WORM) Cloud Logging bucket + sink + data-access audit config. |
+| `logging_worm.tf` | WORM Cloud Logging bucket (locked when `worm_locked = true`) + sink + data-access audit config. |
 | `monitoring.tf` | Log-based alerts: guardrail blocks, SA-key creation, VPC-SC denials. |
 | `iam.tf` | Least-privilege runtime + agent-runtime service accounts (no keys). |
 | `cloud_run.tf` | Cloud Run v2 service: the FastAPI container on port 8101, CMEK, `MKT_CAMPAIGN_PROFILE=gcp`, `/healthz` probes. |

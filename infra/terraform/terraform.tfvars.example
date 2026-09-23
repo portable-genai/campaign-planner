@@ -16,6 +16,11 @@ zone            = "asia-southeast1-a"
 # ~7-year WORM retention for the audit log. Bucket lock is irreversible.
 retention_days = 2557
 
+# The WORM lock has NO default: a plan refuses until it is stated here. true is the compliant
+# production form and is IRREVERSIBLE for the retention window; an evaluation stack that must
+# stay destroyable states false (NOT compliant).
+worm_locked = true
+
 # Container image built from the repo Dockerfile and pushed to Artifact Registry (SG).
 image = "asia-southeast1-docker.pkg.dev/acme-campaign-planner-sg-prod/mkt/campaign-planner:0.1.0"
 
