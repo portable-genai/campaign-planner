@@ -175,8 +175,11 @@ def plan(
     """Build a cited campaign plan for an objective in a market and vertical."""
     from datetime import date
 
-    from ..api.deps import make_plan_service
+    from ..adapters.controls import RecordingReviewRouter
+    from ..api.deps import get_container, make_plan_service
     from ..domain.models import Market, PacingStrategy, PlanRequest, Vertical
+
+    routing: RecordingReviewRouter | None = None
 
     def go() -> Plan:
         request = PlanRequest(
@@ -190,10 +193,15 @@ def plan(
             pacing=PacingStrategy(pacing),
             max_segments=max_segments,
         )
-        return make_plan_service().build_plan(request, actor=_CLI_ACTOR)
+        nonlocal routing
+        routing = RecordingReviewRouter(get_container().review_router)
+        return make_plan_service(review_router=routing).build_plan(request, actor=_CLI_ACTOR)
 
     result = _run("plan", go)
     _echo_plan(result)
+    if routing is not None:
+        # Rule R8 on the CLI path too: say where the escalation went, not only that it exists.
+        typer.echo(f"human review hand-off: {routing.outcome.value}")
 
 
 if __name__ == "__main__":  # pragma: no cover

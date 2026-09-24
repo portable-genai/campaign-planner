@@ -7,6 +7,7 @@ the domain orchestrator, so the CLI, API and agent layers share identical wiring
 from __future__ import annotations
 
 from functools import lru_cache
+from typing import Any
 
 from ..config import Container, build_container
 from ..domain.allocation_service import BudgetAllocationService
@@ -21,7 +22,15 @@ def get_container() -> Container:
     return build_container()
 
 
-def make_plan_service(container: Container | None = None) -> CampaignPlanService:
+def make_plan_service(
+    container: Container | None = None, *, review_router: Any = None
+) -> CampaignPlanService:
+    """Build the plan service; ``review_router`` replaces the container's for one call.
+
+    A caller that reports the hand-off passes a
+    :class:`~campaign_planner.adapters.controls.RecordingReviewRouter` wrapping the container's
+    router, so what it returns can say whether the plan reached the review console.
+    """
     container = container or get_container()
     policy = container.settings.policy
     return CampaignPlanService(
@@ -45,7 +54,7 @@ def make_plan_service(container: Container | None = None) -> CampaignPlanService
             ramp_low=policy.pacing_ramp_low,
             ramp_high=policy.pacing_ramp_high,
         ),
-        review_router=container.review_router,
+        review_router=review_router or container.review_router,
     )
 
 
