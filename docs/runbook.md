@@ -51,9 +51,11 @@ export MKT_CAMPAIGN_REGION="$(terraform output -raw region)"
 export MKT_CAMPAIGN_CMEK_KEY="$(terraform output -raw cmek_key)"
 export MKT_CAMPAIGN_LOG_BUCKET="$(terraform output -raw log_bucket)"
 
-# 3. Install the managed stack and run the API.
+# 3. Install the managed stack and run the API. With review routing on (the default) the
+#    process refuses to boot without the console it routes every plan to.
 pip install -e ".[gcp,dev]"
 export GOOGLE_CLOUD_PROJECT=your-sg-project MKT_CAMPAIGN_PROFILE=gcp
+export HUMAN_REVIEW_URL=https://human-review.your-bank.example   # or MKT_CAMPAIGN_REVIEW_ROUTING=off
 gcloud auth application-default login
 make run-api PROFILE=gcp          # FastAPI on :8101 (front with the platform ingress)
 ```
@@ -116,6 +118,30 @@ To stop serving without tearing down state: scale the Cloud Run / Agent Runtime 
 zero, or remove the app service account's `roles/aiplatform.user` binding. The audit trail
 remains intact.
 
+## 5a. Runtime controls
+
+`MKT_CAMPAIGN_GUARDRAIL` and `MKT_CAMPAIGN_REVIEW_ROUTING` each switch one cheap runtime
+control, read once at startup in three states: unset is on, `true`/`false` (or `on`/`off`,
+`1`/`0`, `yes`/`no`) wins, and an emptied or unrecognised value refuses to boot, naming the
+variable. The Terraform states both (`guardrail_enabled`, `review_routing_enabled`, default
+`true`). This service has no PII redaction port, so it has no redaction switch.
+
+- **Guardrail off** binds a guardrail that allows everything unchanged. Under `gcp` with the
+  guardrail on, an empty `model_armor.template_id` refuses to boot rather than building a
+  malformed Model Armor URL at the first request.
+- **Review routing off** binds a router that submits nothing. Every plan is still audited
+  `ESCALATED` and still says `requires_human_review`, and every response reports
+  `review_routing: "off"` so nobody reads the plan as queued for an approver. Under `gcp` or
+  `platform` with routing on, an unset `HUMAN_REVIEW_URL` refuses to boot; set the switch off
+  to run without a console, rather than leaving the URL out.
+- A process with either control off logs one `WARNING` at startup naming each.
+
+Every caller that hands a plan to the review console reports what happened to it: the API
+response and the agent tool's payload carry `review_routing` (`routed`, `failed`, `off`,
+`not_required`), the MCP `build_plan` tool returns it with the plan, and the CLI prints it. A
+hand-off that fails is logged at `WARNING` with the exception type and reported as `failed`;
+the plan itself is still returned, and the console says it is not queued for review.
+
 ## 6. Common failures
 
 | Symptom | Likely cause | Fix |
@@ -123,6 +149,8 @@ remains intact.
 | `NotImplementedError` from a CLI command (exit 2) | `MKT_CAMPAIGN_PROFILE=onprem` with placeholder adapters | Set `MKT_CAMPAIGN_PROFILE=gcp` (or implement the on-prem adapter) |
 | Plan rejected: total budget not positive | `total_budget <= 0` in the request | Pass a positive budget in the market currency |
 | Guardrail block on a benign objective (HTTP 400) | Model Armor template too strict | Tune the `model_armor` template filter confidence levels |
+| Boot refused: "Review routing is on ... but HUMAN_REVIEW_URL is not set" | `gcp`/`platform` with routing on and no console named | Set `HUMAN_REVIEW_URL` (Terraform `human_review_url`), or state `MKT_CAMPAIGN_REVIEW_ROUTING=off` |
+| A plan response says `review_routing: "failed"` | The review console was unreachable or refused the hand-off; the log names the exception type | Restore the console; the plan is not queued, so resubmit it once the console answers |
 | CORS error from the embedded UI | Origin not in the per-tenant allowlist | Add the parent origin to `MKT_CAMPAIGN_CORS_ORIGINS` (never `*`) |
 | HTTP 503 "refusing to serve the unauthenticated ... posture" | The bound identity adapter does not verify the end user (seeded personas, the on-prem placeholder, or no profile chosen) and the peer is not loopback | Front the service with IAP and set `MKT_CAMPAIGN_PROFILE=gcp`, or serve the offline demo on loopback only. `MKT_CAMPAIGN_ALLOW_INSECURE_DEMO=1` accepts the exposure deliberately |
 | VPC-SC denies the apply | Runner identity outside the perimeter | Apply with `vpc_sc_enforce = false`, add the identity to `operator_members`, re-apply true |

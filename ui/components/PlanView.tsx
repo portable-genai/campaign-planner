@@ -1,4 +1,4 @@
-import type { Plan } from "@/lib/types";
+import type { Plan, ReviewRouting } from "@/lib/types";
 import { CitationList } from "./CitationList";
 
 const MARKET_LABEL: Record<string, string> = {
@@ -9,6 +9,14 @@ const MARKET_LABEL: Record<string, string> = {
 const VERTICAL_LABEL: Record<string, string> = {
   banking: "Banking",
   online_retail: "Online retail",
+};
+
+// What happened to the human-review hand-off, in the words the user needs. A plan that must be
+// reviewed but is not queued must say so rather than read as on its way to an approver.
+const REVIEW_ROUTING_TEXT: Record<Exclude<ReviewRouting, "not_required">, string> = {
+  routed: "Sent to the review console.",
+  failed: "Could not reach the review console; this plan is not queued for review.",
+  off: "Review routing is off in this deployment; this plan is not queued for review.",
 };
 
 function money(value: number | null | undefined): string {
@@ -72,6 +80,16 @@ export function PlanView({ plan }: { plan: Plan }) {
         <div className="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">
           HUMAN REVIEW REQUIRED — maker-checker gate. Do not commit any spend on this plan
           until a qualified marketer / finance approver signs off.
+          {plan.review_routing && plan.review_routing !== "not_required" ? (
+            <p
+              data-review-routing={plan.review_routing}
+              className={`mt-1 font-medium ${
+                plan.review_routing === "routed" ? "text-emerald-800" : "text-rose-800"
+              }`}
+            >
+              {REVIEW_ROUTING_TEXT[plan.review_routing]}
+            </p>
+          ) : null}
         </div>
       ) : null}
 

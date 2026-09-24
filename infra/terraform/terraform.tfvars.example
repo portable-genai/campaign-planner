@@ -31,3 +31,9 @@ access_policy_id = "987654321098"
 # Sovereignty perimeter on by default, dry-run first (enforce only after a clean dry-run).
 enable_vpc_sc  = true
 vpc_sc_dry_run = true
+
+# Cheap runtime controls stay on in the reference; say so rather than inheriting the default.
+# With review routing on the service refuses to boot without the console it routes plans to.
+guardrail_enabled      = true
+review_routing_enabled = true
+human_review_url       = "https://human-review.acme-bank.example"

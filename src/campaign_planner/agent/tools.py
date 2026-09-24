@@ -23,6 +23,7 @@ from __future__ import annotations
 from datetime import date, timedelta
 from typing import TYPE_CHECKING, Any
 
+from ..adapters.controls import RecordingReviewRouter
 from ..config import Container, Settings, build_container
 
 if TYPE_CHECKING:  # pragma: no cover - typing only, never imported at runtime
@@ -75,7 +76,8 @@ def build_campaign_plan(
       actor: Authenticated identity the request is made for.
 
     Returns:
-      A JSON-safe ``Plan`` dict.
+      A JSON-safe ``Plan`` dict, with ``review_routing`` saying whether the plan reached the
+      human-review console (``routed``), could not (``failed``), or routing is ``off``.
     """
     from ..api.deps import make_plan_service
     from ..domain.models import Market, PacingStrategy, PlanRequest, Vertical
@@ -96,7 +98,13 @@ def build_campaign_plan(
         max_segments=max_segments,
         channels=(),
     )
-    return to_jsonable(make_plan_service(c).build_plan(request, actor=actor))
+    routing = RecordingReviewRouter(c.review_router)
+    payload: dict[str, Any] = to_jsonable(
+        make_plan_service(c, review_router=routing).build_plan(request, actor=actor)
+    )
+    # The plan is always a maker-checker item; the agent is told whether it is actually queued.
+    payload["review_routing"] = routing.outcome.value
+    return payload
 
 
 def select_audience(

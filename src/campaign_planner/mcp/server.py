@@ -23,8 +23,10 @@ from typing import Any
 
 from hex_service_kit import mcpserve
 
+from ..adapters.controls import RecordingReviewRouter
 from ..config import build_container
-from ..domain.models import Market, PlanRequest, Vertical
+from ..domain.models import Market, Plan, PlanRequest, Vertical
+from ..domain.serialization import to_jsonable
 
 #: The tools this module answers, as data, so a test can hold it against the catalog.
 HANDLER_NAMES: tuple[str, ...] = ("audience_segments", "allocate_budget", "build_plan")
@@ -48,17 +50,32 @@ def _request(arguments: dict[str, Any]) -> PlanRequest:
 
 
 def build_handlers(actor: str) -> dict[str, mcpserve.Handler]:
-    """Bind each declared tool to the plan service that already performs it."""
-    from ..api.app import make_plan_service
+    """Bind each declared tool to the plan service that already performs it.
+
+    Every tool builds a plan, and every plan is handed to the review router, so each goes
+    through :class:`RecordingReviewRouter`: a failed hand-off is logged by exception type rather
+    than swallowed. ``build_plan`` returns the whole plan and so also says what happened to the
+    hand-off (``review_routing``); the two section tools return a section, which has no place
+    for it.
+    """
+    from ..api.deps import get_container, make_plan_service
+
+    def plan_for(arguments: dict[str, Any]) -> tuple[Plan, RecordingReviewRouter]:
+        routing = RecordingReviewRouter(get_container().review_router)
+        plan = make_plan_service(review_router=routing).build_plan(_request(arguments), actor=actor)
+        return plan, routing
 
     def build_plan(**arguments: Any) -> Any:
-        return make_plan_service().build_plan(_request(arguments), actor=actor)
+        plan, routing = plan_for(arguments)
+        payload: dict[str, Any] = to_jsonable(plan)
+        payload["review_routing"] = routing.outcome.value
+        return payload
 
     def audience_segments(**arguments: Any) -> Any:
-        return make_plan_service().build_plan(_request(arguments), actor=actor).segments
+        return plan_for(arguments)[0].segments
 
     def allocate_budget(**arguments: Any) -> Any:
-        return make_plan_service().build_plan(_request(arguments), actor=actor).channel_mix
+        return plan_for(arguments)[0].channel_mix
 
     return {
         "audience_segments": audience_segments,
