@@ -5,6 +5,10 @@
 # MKT_CAMPAIGN_PROFILE=local runs the whole pipeline offline (deterministic audience-data
 # store + deterministic LLM), with NO Google Cloud SDK required; production deploys set
 # MKT_CAMPAIGN_PROFILE=gcp explicitly.
+# MKT_CAMPAIGN_PROFILE=live is the laptop run with a real model: every port binds the same
+# offline adapter `local` does except `llm`, which calls the fleet's one local open-weight model
+# through hex_service_kit.localmodel (LOCAL_MODEL_URL, LOCAL_MODEL; default Gemma 4 31B on
+# http://127.0.0.1:8001). Tests, CI and `make demo` stay on `local`.
 #
 # There is NO default profile. Leaving both the variable and `profile:` below unset means
 # nobody chose, which is not the same as choosing `local`: the SDK-free adapters still bind
@@ -17,7 +21,7 @@
 
 project_id: ${GOOGLE_CLOUD_PROJECT:-your-gcp-project}
 region: asia-southeast1                  # default residency region; per-market overrides apply
-profile: ""                              # no default; MKT_CAMPAIGN_PROFILE wins. gcp | local | platform | onprem
+profile: ""                              # no default; MKT_CAMPAIGN_PROFILE wins. gcp | local | live | platform | onprem
 vertical: ${MKT_VERTICAL:-banking}       # banking | online_retail
 market: ${MKT_MARKET:-SG}                # JP | AU | SG
 
@@ -115,46 +119,55 @@ adapters:
     gcp: campaign_planner.adapters.gcp.iap_identity:IapIdentityAdapter
     platform: campaign_planner.adapters.gcp.iap_identity:IapIdentityAdapter
     local: campaign_planner.adapters.local.identity:LocalPersonaIdentityAdapter
+    live: campaign_planner.adapters.local.identity:LocalPersonaIdentityAdapter
     onprem: campaign_planner.adapters.onprem.identity:OnPremIdentityAdapter
   audience:
     gcp: campaign_planner.adapters.gcp.bigquery_audience:BigQueryAudienceDataAdapter
     platform: campaign_planner.adapters.platform.remote_audience:RemoteAudienceDataAdapter
     local: campaign_planner.adapters.local.audience:LocalAudienceDataAdapter
+    live: campaign_planner.adapters.local.audience:LocalAudienceDataAdapter
     onprem: campaign_planner.adapters.onprem.audience:OnPremAudienceDataAdapter
   llm:
     gcp: campaign_planner.adapters.gcp.gemini_llm:GeminiLLMAdapter
     platform: campaign_planner.adapters.gcp.gemini_llm:GeminiLLMAdapter
     local: campaign_planner.adapters.local.llm:LocalDeterministicLLMAdapter
+    live: campaign_planner.adapters.live.llm:LocalModelLLMAdapter
     onprem: campaign_planner.adapters.onprem.llm:OnPremLLMAdapter
   guardrail:
     gcp: campaign_planner.adapters.gcp.model_armor_guardrail:ModelArmorGuardrailAdapter
     platform: campaign_planner.adapters.platform.remote_guardrail:RemoteGuardrailAdapter
     local: campaign_planner.adapters.local.guardrail:LocalHeuristicGuardrailAdapter
+    live: campaign_planner.adapters.local.guardrail:LocalHeuristicGuardrailAdapter
     onprem: campaign_planner.adapters.onprem.guardrail:OnPremGuardrailAdapter
   audit:
     gcp: campaign_planner.adapters.gcp.cloud_logging_audit:CloudLoggingAuditAdapter
     platform: campaign_planner.adapters.platform.remote_audit:RemoteAuditAdapter
     local: campaign_planner.adapters.local.audit:LocalAppendOnlyAuditAdapter
+    live: campaign_planner.adapters.local.audit:LocalAppendOnlyAuditAdapter
     onprem: campaign_planner.adapters.onprem.audit:OnPremAuditAdapter
   tracer:
     gcp: campaign_planner.adapters.gcp.cloud_trace_tracer:CloudTraceTracerAdapter
     platform: campaign_planner.adapters.gcp.cloud_trace_tracer:CloudTraceTracerAdapter
     local: campaign_planner.adapters.local.tracer:LocalNoopTracerAdapter
+    live: campaign_planner.adapters.local.tracer:LocalNoopTracerAdapter
     onprem: campaign_planner.adapters.onprem.tracer:OnPremTracerAdapter
   evaluation:
     gcp: campaign_planner.adapters.gcp.genai_eval:GenAiEvalAdapter
     platform: campaign_planner.adapters.platform.remote_evaluation:RemoteEvaluationAdapter
     local: campaign_planner.adapters.local.evaluation:LocalOfflineEvalAdapter
+    live: campaign_planner.adapters.local.evaluation:LocalOfflineEvalAdapter
     onprem: campaign_planner.adapters.onprem.evaluation:OnPremEvalAdapter
   agent_registry:
     gcp: campaign_planner.adapters.gcp.a2a_registry:A2ARegistryAdapter
     platform: campaign_planner.adapters.platform.remote_registry:RemoteRegistryAdapter
     local: campaign_planner.adapters.local.registry_agent:LocalAgentRegistryAdapter
+    live: campaign_planner.adapters.local.registry_agent:LocalAgentRegistryAdapter
     onprem: campaign_planner.adapters.onprem.registry_agent:OnPremAgentRegistryAdapter
   tool_catalog:
     gcp: campaign_planner.adapters.gcp.mcp_tool_catalog:McpToolCatalogAdapter
     platform: campaign_planner.adapters.gcp.mcp_tool_catalog:McpToolCatalogAdapter
     local: campaign_planner.adapters.local.tool_catalog:LocalToolCatalogAdapter
+    live: campaign_planner.adapters.local.tool_catalog:LocalToolCatalogAdapter
     onprem: campaign_planner.adapters.onprem.tool_catalog:OnPremToolCatalogAdapter
   # Rule R8: a plan sets requires_human_review, so it MUST be routed to the human-review-console maker-checker
   # console via the shared review-kit, not left as a per-repo boolean. gcp/platform submit
@@ -164,4 +177,5 @@ adapters:
     gcp: campaign_planner.adapters.platform.review_router:PlatformReviewRouter
     platform: campaign_planner.adapters.platform.review_router:PlatformReviewRouter
     local: campaign_planner.adapters.local.review_router:LocalReviewRouter
+    live: campaign_planner.adapters.local.review_router:LocalReviewRouter
     onprem: campaign_planner.adapters.onprem.review_router:OnPremReviewRouter

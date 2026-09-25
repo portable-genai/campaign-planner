@@ -18,7 +18,7 @@ creative brief and the plan narrative.
 | Catalog id | `campaign-planner` |
 | Package | `src/campaign_planner/` |
 | Profile variable | `MKT_CAMPAIGN_PROFILE` |
-| Adapter families | `gcp`, `local`, `onprem`, `platform` |
+| Adapter families | `gcp`, `local`, `live` (local model via `hex_service_kit.localmodel`), `onprem`, `platform` |
 | Gate | `make gate` (`lint format typecheck test eval demo-selftest portability`) |
 
 `config.resolve_profile` is the only reader of that variable, and it resolves three states.

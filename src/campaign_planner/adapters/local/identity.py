@@ -20,7 +20,7 @@ with the sibling repos) so a cross-repo demo shows one consistent cast of users.
 
 from __future__ import annotations
 
-from ...config import Settings
+from ...config import LAPTOP_PROFILES, Settings
 from ...domain.identity import IdentityError, Principal, RequestContext
 from ...ports.identity import CLIENT_ASSERTED
 
@@ -78,10 +78,10 @@ class LocalPersonaIdentityAdapter:
     end_user_auth = CLIENT_ASSERTED
 
     def __init__(self, settings: Settings) -> None:
-        if settings.profile != "local":
+        if settings.profile not in LAPTOP_PROFILES:
             raise LocalPersonaProfileError(
-                "seeded dev personas are local-profile only; refusing to serve them under "
-                f"profile {settings.profile!r}"
+                "seeded dev personas are laptop-profile only (local, live); refusing to serve "
+                f"them under profile {settings.profile!r}"
             )
         if not settings.profile_explicit:
             raise LocalPersonaProfileError(

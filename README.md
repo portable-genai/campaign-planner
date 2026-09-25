@@ -50,9 +50,17 @@ eval/run_eval.py     `model-quality-gate` promotion gate over a synthetic golden
 ui/                  thin Next.js console
 ```
 
-Three deployment profiles, one domain: `gcp` (managed Google Cloud), `local` (a real
-offline stack - the dev/test/CI default), `onprem` (fail-fast `NotImplementedError` stubs
-that prove exit-portability). Switch with `MKT_CAMPAIGN_PROFILE`.
+Deployment profiles, one domain: `gcp` (managed Google Cloud), `local` (a real
+offline stack - the dev/test/CI default), `live` (the laptop run with a real model: the
+`local` stack except `llm`, which calls a local open-weight model), `onprem` (fail-fast
+`NotImplementedError` stubs that prove exit-portability). Switch with `MKT_CAMPAIGN_PROFILE`.
+
+`live` reaches the model through the fleet's shared client, `hex_service_kit.localmodel`:
+`LOCAL_MODEL_URL` (default `http://127.0.0.1:8001/chat/completions`) and `LOCAL_MODEL`
+(default `mlx-community/gemma-4-31b-it-8bit`). Start a server with
+`uv venv --python 3.13 .mlx-venv && uv pip install --python .mlx-venv mlx-vlm`, then
+`.mlx-venv/bin/python -m mlx_vlm.server --model mlx-community/gemma-4-31b-it-8bit --port 8001`,
+and run `make run-api PROFILE=live`. A down server answers 503 with the same recipe.
 
 ## Identity and embedding
 
