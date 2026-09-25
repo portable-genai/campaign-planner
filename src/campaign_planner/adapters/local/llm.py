@@ -14,6 +14,8 @@ import json
 import re
 from typing import Any
 
+from hex_service_kit import provenance
+
 from ...config import Settings
 from ...domain.models import LlmRequest, LlmResponse, TokenUsage
 
@@ -30,6 +32,11 @@ def _schema_properties(schema: dict | None) -> dict[str, Any]:
 class LocalDeterministicLLMAdapter:
     """Deterministic LLM whose ``generate`` returns JSON matching the request schema."""
 
+    #: What answered, for the console's pill (X-Answered-By): the same name ``generator_model``
+    #: reports under ``local``, so the pill never claims a Gemini model answered a request that
+    #: never left the machine.
+    STUB_NAME = "deterministic-offline-stub"
+
     REASONING_MODEL = "gemini-3.5-flash"
     TRIAGE_MODEL = "gemini-3.5-flash"
 
@@ -41,6 +48,7 @@ class LocalDeterministicLLMAdapter:
     def generate(self, request: LlmRequest) -> LlmResponse:
         source_ids = self._source_ids_from_request(request)
         body = self._body_for_schema(request.response_schema, source_ids)
+        provenance.note_model(self.STUB_NAME)
         return LlmResponse(
             text=json.dumps(body),
             usage=TokenUsage(input_tokens=128, output_tokens=96, thinking_tokens=32),
@@ -49,6 +57,7 @@ class LocalDeterministicLLMAdapter:
         )
 
     def classify(self, text: str, labels: list[str]) -> str:
+        provenance.note_model(self.STUB_NAME)
         return labels[0] if labels else ""
 
     # ------------------------------------------------------------------ #

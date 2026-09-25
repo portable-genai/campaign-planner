@@ -190,6 +190,9 @@ class CampaignPlanService:
             LlmRequest(
                 messages=(LlmMessage(role="user", content=prompt),),
                 response_schema=_BRIEF_SCHEMA,
+                # Free, not pinned: this drafts the brief and narrates the summary over numbers
+                # the deterministic engines already fixed, and nothing compares the prose.
+                temperature=None,
             )
         )
         return self._extract_draft(response.text, request)

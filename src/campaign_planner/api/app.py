@@ -20,7 +20,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from hex_service_kit import cors_allowlist
 from hex_service_kit.netdefaults import ConfiguredEmptyError, read_env_setting
-from hex_service_kit.web import add_loopback_exposure_guard
+from hex_service_kit.web import add_loopback_exposure_guard, install_answer_provenance
 
 from ..adapters.controls import RecordingReviewRouter
 from ..config import LAPTOP_PROFILES, Settings, end_user_auth_kind
@@ -189,6 +189,16 @@ app.add_middleware(
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization", "X-Dev-Persona"],
 )
+
+# Which model answered, and whether it searched: the model adapters note it as they call
+# (`hex_service_kit.provenance.note_model` / `note_search`; the kit's local-model client notes
+# itself) and this emits it as `X-Answered-By` / `X-Search-Used` on the same response. The
+# console's pills read those two headers, so what a pill names is what answered, never what
+# configuration says would. A request that noted nothing sends neither, and the pill keeps
+# showing the configured `generator_model` from `/healthz`. It also sends
+# `Access-Control-Expose-Headers` naming both, which is what lets this console, calling the
+# service cross-origin, read them at all.
+install_answer_provenance(app)
 
 
 @app.middleware("http")
