@@ -41,9 +41,9 @@ export default function Page() {
       const status = await api.healthz();
       if (cancelled) return;
       setHealth(status);
-      // The persona picker is a LOCAL-profile convenience only: secure profiles resolve
-      // identity server-side from the IAP assertion, never from a client hint.
-      if (!status || status.profile !== "local") return;
+      // The persona picker is a LAPTOP-profile convenience only (local, live): secure profiles
+      // resolve identity server-side from the IAP assertion, never from a client hint.
+      if (!status || (status.profile !== "local" && status.profile !== "live")) return;
       try {
         const list = await api.listPersonas();
         if (cancelled || list.length === 0) return;

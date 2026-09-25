@@ -47,3 +47,19 @@ class UnsupportedMarketError(CampaignPlanError):
 
 class UnsupportedVerticalError(CampaignPlanError):
     """Raised when a requested vertical has no configured seed / taxonomy."""
+
+
+class ModelUnavailableError(CampaignPlanError):
+    """Raised when the drafting model cannot be reached (its server is down or not serving).
+
+    A service error rather than a request error: the API answers 503, and the message names how
+    to bring the model back.
+    """
+
+
+class ModelOutputError(CampaignPlanError):
+    """Raised when the drafting model answered but never produced a usable structured draft.
+
+    The API answers 502: the upstream model misbehaved, and the plan is not assembled from an
+    answer that failed its schema.
+    """
