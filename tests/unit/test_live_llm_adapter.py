@@ -165,7 +165,7 @@ def test_the_api_answers_503_when_the_live_model_is_down(
     assert "model unavailable" in reply.json()["detail"]
 
 
-def test_the_banner_names_the_local_model_under_live(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_the_pill_names_the_local_model_under_live(monkeypatch: pytest.MonkeyPatch) -> None:
     """``live`` runs on the laptop and a real model answers, so neither stub string is true."""
     monkeypatch.setenv("LOCAL_MODEL", _ANSWERED_BY)
     settings = _settings("live")

@@ -18,6 +18,8 @@ NEXT_PUBLIC_API_BASE=http://localhost:8101 npm run dev
 | `proxy.ts` | Mints the nonce per request and sets the policy on both the request headers (where Next reads the nonce) and the response headers (what the browser enforces). |
 | `next.config.mjs` | The static headers a table CAN express, plus the two build refusals. Deliberately emits no CSP. |
 | `app/layout.tsx` | `export const dynamic = "force-dynamic"`, required by the nonce policy. |
+| `app/ModelPills.tsx` | The two pills at the top right of every page: the model that answered the last request (the configured `generator_model` from `/healthz`, dimmed, until one has), and `Search` when that answer used an online search tool. |
+| `lib/answer-provenance.mjs` | The one `window.fetch` wrapper the pills read the service's `X-Answered-By` / `X-Search-Used` headers through, so no call site reports its own model. The service also sends `Access-Control-Expose-Headers` naming both, or this cross-origin console could not read them. Covered by `npm test`. |
 | `scripts/assert-hydratable.mjs` | Starts the BUILT server and asserts the served document's script tags carry the served nonce. |
 | `tests/csp.test.mjs` | What a policy STRING can decide, and an explicit note on what it cannot. |
 
