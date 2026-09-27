@@ -12,7 +12,7 @@
 #   bigquery          -> bigquery_audience (audience-segment + benchmark warehouse)
 #   modelarmor        -> model_armor_guardrail (INPUT/OUTPUT safety checks)
 #   logging           -> cloud_logging_audit (WORM audit sink)
-#   cloudtrace        -> cloud_trace_tracer (OpenTelemetry spans)
+#   cloudtrace        -> tracer, through the agent-observability collector
 # Always-needed platform services for any Singapore-resident Cloud Run deploy:
 #   run, artifactregistry, cloudkms, iam, storage, compute, orgpolicy, accesscontextmanager.
 #

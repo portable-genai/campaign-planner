@@ -38,7 +38,7 @@ Tied to the `adapters: gcp:` bindings in `config/settings.yaml`:
 - `bigquery.googleapis.com`: `bigquery_audience` (audience-segment + benchmark warehouse).
 - `modelarmor.googleapis.com`: `model_armor_guardrail` (INPUT / OUTPUT screening).
 - `logging.googleapis.com`: `cloud_logging_audit` (WORM audit sink).
-- `cloudtrace.googleapis.com`: `cloud_trace_tracer` (OpenTelemetry spans).
+- `cloudtrace.googleapis.com`: where the agent-observability collector lands this service's spans (`adapters/gcp/tracer.py`).
 - Always-needed for the deploy + posture: `run`, `artifactregistry`, `cloudkms`, `iam`, `storage`, `compute`, `orgpolicy`, `accesscontextmanager`, `monitoring`.
 
 Services this repo never calls are not enabled.
