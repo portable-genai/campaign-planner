@@ -277,6 +277,8 @@ class BigQuerySettings:
 class ModelArmorSettings:
     template_id: str = "mkt-campaign-guardrail"
     host: str = "modelarmor.asia-southeast1.rep.googleapis.com"
+    #: The deadline on every sanitize call. A timeout raises, and the caller refuses.
+    timeout_seconds: float = 30.0
 
 
 #: The environment variables that switch each cheap runtime control, read in three states:
