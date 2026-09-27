@@ -6,9 +6,19 @@ the Gemini Enterprise Agent Platform. Inbound prompts are screened with
 regional endpoint (``modelarmor.<region>.rep.googleapis.com``) so all screening stays inside
 the configured residency boundary.
 
-The adapter parses ``sanitizationResult.filterResults`` (the prompt-injection / jailbreak,
-Sensitive Data Protection and malicious-URI filters) into :class:`GuardrailFinding` records
-and treats the request as *blocked* when any filter reports ``MATCH_FOUND``.
+FAIL CLOSED. The verdict is ALLOWED only when ``sanitizationResult.filterMatchState`` is the
+string ``"NO_MATCH_FOUND"`` AND ``sanitizationResult.invocationResult`` is the string
+``"SUCCESS"``. Everything else blocks: ``MATCH_FOUND``, ``FILTER_MATCH_STATE_UNSPECIFIED``, a
+missing or empty ``sanitizationResult``, and a clean-looking ``NO_MATCH_FOUND`` whose
+``invocationResult`` is ``PARTIAL``, ``FAILURE``, unspecified or absent. ``invocationResult``
+is set independently of the match state: a filter that was skipped (input past its token
+limit, an unsupported language, a detector error) reports no match, so "no match" from a
+screen that did not run is refused, not passed. Every call carries a deadline
+(``model_armor.timeout_seconds``), and an HTTP or transport error propagates to the caller.
+
+``sanitizationResult.filterResults`` (the prompt-injection / jailbreak, Sensitive Data
+Protection and malicious-URI filters) is parsed into :class:`GuardrailFinding` records that
+explain a block; the findings never decide the verdict on their own.
 
 All Google Cloud / auth / HTTP SDK imports are LAZY (inside methods) so the on-prem / local
 / test profile imports this module with no GCP SDK installed.
@@ -22,6 +32,8 @@ from ...config import Settings
 from ...domain.models import Direction, GuardrailCategory, GuardrailFinding, GuardrailVerdict
 
 _MATCH_FOUND = "MATCH_FOUND"
+_NO_MATCH_FOUND = "NO_MATCH_FOUND"
+_SUCCESS = "SUCCESS"
 
 
 class ModelArmorGuardrailAdapter:
@@ -40,7 +52,7 @@ class ModelArmorGuardrailAdapter:
     # GuardrailPort
     # ------------------------------------------------------------------ #
     def screen(self, text: str, direction: Direction) -> GuardrailVerdict:
-        """Screen ``text`` and return a verdict; blocks on any filter match."""
+        """Screen ``text`` and return a verdict; allows only a complete, clean screen."""
         verb = "sanitizeUserPrompt" if direction is Direction.INPUT else "sanitizeModelResponse"
         payload = self._build_payload(text, direction)
         url = (
@@ -66,7 +78,7 @@ class ModelArmorGuardrailAdapter:
             "Authorization": f"Bearer {self._bearer_token()}",
             "Content-Type": "application/json",
         }
-        resp = client.post(url, json=payload, headers=headers, timeout=30.0)
+        resp = client.post(url, json=payload, headers=headers, timeout=self._armor.timeout_seconds)
         resp.raise_for_status()
         data: dict[str, Any] = resp.json()
         return data
@@ -95,25 +107,69 @@ class ModelArmorGuardrailAdapter:
     # ------------------------------------------------------------------ #
     # Response parsing
     # ------------------------------------------------------------------ #
-    def _parse(
-        self, response: dict[str, Any], direction: Direction, original_text: str
-    ) -> GuardrailVerdict:
-        result = response.get("sanitizationResult", {}) or {}
-        filter_results = result.get("filterResults", {}) or {}
+    def _parse(self, response: Any, direction: Direction, original_text: str) -> GuardrailVerdict:
+        """Map a sanitize response to a verdict: allowed ONLY on a complete, clean screen.
+
+        Clean means ``filterMatchState == "NO_MATCH_FOUND"``; complete means
+        ``invocationResult == "SUCCESS"``. Both are compared as literal strings, so a missing
+        field, an unspecified value, a number or any other shape blocks.
+        """
+        result = response.get("sanitizationResult") if isinstance(response, dict) else None
+        if not isinstance(result, dict):
+            result = {}
+        filter_results = result.get("filterResults") or {}
+        if not isinstance(filter_results, dict):
+            filter_results = {}
         findings: list[GuardrailFinding] = []
         findings.extend(self._parse_pi_jailbreak(filter_results))
         findings.extend(self._parse_sensitive_data(filter_results))
         findings.extend(self._parse_malicious_uris(filter_results))
 
         match_state = result.get("filterMatchState")
-        allowed = match_state != _MATCH_FOUND if match_state is not None else not findings
-        sanitized_text = self._extract_sanitized_text(filter_results, original_text)
+        invocation = result.get("invocationResult")
+        allowed = match_state == _NO_MATCH_FOUND and invocation == _SUCCESS
+        if allowed:
+            return GuardrailVerdict(
+                allowed=True,
+                direction=direction,
+                findings=tuple(findings),
+                sanitized_text=self._extract_sanitized_text(filter_results, original_text),
+                reason=self._reason(True, findings),
+            )
+        if match_state == _MATCH_FOUND:
+            reason = self._reason(False, findings)
+            if not findings:
+                findings.append(
+                    GuardrailFinding(
+                        category=GuardrailCategory.OTHER,
+                        confidence="high",
+                        detail="Model Armor filter match.",
+                    )
+                )
+        elif match_state == _NO_MATCH_FOUND:
+            reason = "Blocked: Model Armor returned no complete filter decision."
+            findings.append(
+                GuardrailFinding(
+                    category=GuardrailCategory.OTHER,
+                    confidence="high",
+                    detail=f"invocationResult={invocation!r}: not every filter ran.",
+                )
+            )
+        else:
+            reason = "Blocked: Model Armor returned no usable verdict."
+            findings.append(
+                GuardrailFinding(
+                    category=GuardrailCategory.OTHER,
+                    confidence="high",
+                    detail=f"filterMatchState={match_state!r}: no usable verdict.",
+                )
+            )
         return GuardrailVerdict(
-            allowed=allowed,
+            allowed=False,
             direction=direction,
             findings=tuple(findings),
-            sanitized_text=sanitized_text,
-            reason=self._reason(allowed, findings),
+            sanitized_text=None,
+            reason=reason,
         )
 
     @staticmethod
