@@ -144,8 +144,8 @@ adapters:
     live: campaign_planner.adapters.local.audit:LocalAppendOnlyAuditAdapter
     onprem: campaign_planner.adapters.onprem.audit:OnPremAuditAdapter
   tracer:
-    gcp: campaign_planner.adapters.gcp.cloud_trace_tracer:CloudTraceTracerAdapter
-    platform: campaign_planner.adapters.gcp.cloud_trace_tracer:CloudTraceTracerAdapter
+    gcp: campaign_planner.adapters.gcp.tracer:CloudTracerAdapter
+    platform: campaign_planner.adapters.gcp.tracer:CloudTracerAdapter
     local: campaign_planner.adapters.local.tracer:LocalNoopTracerAdapter
     live: campaign_planner.adapters.local.tracer:LocalNoopTracerAdapter
     onprem: campaign_planner.adapters.onprem.tracer:OnPremTracerAdapter
