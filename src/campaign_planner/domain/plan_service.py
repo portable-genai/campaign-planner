@@ -159,7 +159,8 @@ class CampaignPlanService:
                 citations=citations,
                 requires_human_review=True,
             )
-            self._guard(summary, Direction.OUTPUT, actor)
+            # Both drafted fields are returned to the caller, so both are screened.
+            self._guard(self._output_text(plan), Direction.OUTPUT, actor)
             self._record(plan, actor)
             # Rule R8: route the escalated, already-audited plan to the human-review-console
             # maker-checker console.
@@ -213,6 +214,11 @@ class CampaignPlanService:
                 f"({line.share * 100:.0f}%), {line.expected_conversions:.0f} conversions"
             )
         return "\n".join(lines) or "(no evidence)"
+
+    @staticmethod
+    def _output_text(plan: Plan) -> str:
+        """Every model-written field the plan returns, as one string for the OUTPUT screen."""
+        return f"{plan.creative_brief}\n\n{plan.summary}"
 
     @staticmethod
     def _extract_draft(text: str, request: PlanRequest) -> tuple[str, str]:
